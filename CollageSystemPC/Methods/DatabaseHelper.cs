@@ -74,6 +74,28 @@ namespace CollageSystemPC.Methods
                 return new List<StdViewModel>(); // Return an empty list on error.
             }
         }
+        public async Task<List<TeacherViewModel>> GetTeacherTableViewAsync()
+        {
+            try
+            {
+                // Correct SQL query to join SubTable with UsersAccountTable
+                string query = @"
+            SELECT 
+                UserId AS TeacherId, 
+                Name AS TeacherName, 
+                Username AS TeacherUsername, 
+                IsActive 
+            FROM UsersAccountTable 
+            WHERE UserType = 1";
+
+                return await _database.QueryAsync<TeacherViewModel>(query);
+            }
+            catch (SQLiteException ex)
+            {
+                Console.WriteLine($"SQLiteException: {ex.Message}");
+                return new List<TeacherViewModel>(); // Return an empty list on error.
+            }
+        }
 
         public async Task InitializeAsync()
         {

@@ -21,6 +21,17 @@ public partial class StdManagement : ContentPage
             OnPropertyChanged(); // Notify that SubTableView property has changed.
         }
     }
+    private ObservableCollection<TeacherViewModel> TeacherTableGetter;
+    public ObservableCollection<TeacherViewModel> TeacherTableSetter
+    {
+        get => TeacherTableGetter;
+        set
+        {
+            TeacherTableGetter = value;
+            OnPropertyChanged(); // Notify that SubTableView property has changed.
+        }
+
+    }
     public readonly SQLiteAsyncConnection _database;
     public DatabaseHelper dbh;
     public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
@@ -31,6 +42,7 @@ public partial class StdManagement : ContentPage
         _database = new SQLiteAsyncConnection(dbPath);
         dbh = new DatabaseHelper(dbPath);
         StdTableGetter = new ObservableCollection<StdViewModel>();
+        TeacherTableGetter = new ObservableCollection<TeacherViewModel>();
         BindingContext = this;
 
     }
@@ -38,6 +50,8 @@ public partial class StdManagement : ContentPage
     {
         base.OnAppearing();
         await LoadStd();
+        await LoadTeacher();
+        STDR.IsChecked = true;
     }
     private async Task LoadStd()
     {
@@ -48,6 +62,16 @@ public partial class StdManagement : ContentPage
             return;
         }
         StdTableSetter = new ObservableCollection<StdViewModel>(std);
+    }
+    private async Task LoadTeacher()
+    {
+        var teacher = await dbh.GetTeacherTableViewAsync();
+        if (teacher == null)
+        {
+            await DisplayAlert("no", "no data", "niga");
+            return;
+        }
+        TeacherTableSetter = new ObservableCollection<TeacherViewModel>(teacher);
     }
 
     private void StdTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
@@ -74,6 +98,35 @@ public partial class StdManagement : ContentPage
         UpdateBtn.IsVisible = true;
         SaveBtn.IsVisible = false;
         ActiveSwitch.IsVisible=true;
+        StdPopupWindow.IsVisible = true;
+        TitleLbl.Text = "تعديل حساب";
+        TeacherTableDataGrid.SelectedRow = null;
+    }
+    private void TeacherTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
+    {
+
+        if (TeacherTableDataGrid.SelectedRow == null)
+        {
+            return;
+        }
+        TR.IsChecked = true;
+        StdPopupWindow.IsVisible = true;
+        var DataRow = TeacherTableDataGrid.SelectedRow;
+        IdEntry.Text = DataRow?.GetType().GetProperty("TeacherId")?.GetValue(DataRow)?.ToString();
+        IdEntry.IsEnabled = false;
+        NameEntry.Text = DataRow?.GetType().GetProperty("TeacherName")?.GetValue(DataRow)?.ToString();
+        UsernameEntry.Text = DataRow?.GetType().GetProperty("TeacherUsername")?.GetValue(DataRow)?.ToString();
+        string activeSwitch= DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower();
+
+        if (activeSwitch == "true")
+            ActiveSwitch.IsOn=true;
+        else 
+            ActiveSwitch.IsOn=false;
+
+        UpdateBtn.IsVisible = true;
+        SaveBtn.IsVisible = false;
+        ActiveSwitch.IsVisible=true;
+        TitleLbl.Text = "تعديل حساب";
         StdPopupWindow.IsVisible = true;
         StdTableDataGrid.SelectedRow = null;
     }
@@ -132,6 +185,7 @@ public partial class StdManagement : ContentPage
             await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
             ClearEntrys();
             await LoadStd();
+            await LoadTeacher();
             StdPopupWindow.IsVisible = false;
         }
     }
@@ -193,18 +247,19 @@ public partial class StdManagement : ContentPage
         await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
         StdPopupWindow.IsVisible = false;
         await LoadStd();
+        await LoadTeacher();
         ClearEntrys();
     }
 
 
     private void AddClicked(object sender, EventArgs e){
-        TR.IsChecked = true;
         STDR.IsChecked = true;
         IdEntry.IsEnabled = true;
         SaveBtn.IsVisible = true;
         UpdateBtn.IsVisible = false;
         ActiveSwitch.IsVisible = false;
         StdPopupWindow.IsVisible = true;
+        TitleLbl.Text = "إضافة حساب";
     }
     private void BackBtnClicked(object sender, EventArgs e){        
             StdPopupWindow.IsVisible=false;

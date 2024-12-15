@@ -13,6 +13,13 @@ namespace CollageSystemPC.Methods
         public string StdUsername { get; set; }
         public bool IsActive { get; set; }
     }
+    public class TeacherViewModel
+    {
+        public int TeacherId { get; set; }
+        public string TeacherName { get; set; }
+        public string TeacherUsername { get; set; }
+        public bool IsActive { get; set; }
+    }
     public class SubTableView
     {
         public int SubId { get; set; }
