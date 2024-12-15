@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:datagrid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:stepProgressBar="clr-namespace:Syncfusion.Maui.ProgressBar;assembly=Syncfusion.Maui.ProgressBar"
+             xmlns:entry="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+             x:Class="CollageSystemPC.Pages.StdManagement"
+             BackgroundColor="#E4E4E4"
+             FlowDirection="RightToLeft"
+             >
+    <Grid>
+        
+        <VerticalStackLayout>
+        <datagrid:SfDataGrid x:Name="StdTableDataGrid"
+                       ItemsSource="{Binding StdTableSetter}"
+                       SelectionMode="Single"
+                       NavigationMode="Row"
+                       SelectionChanged="StdTableSelectionChanged"
+                       ColumnWidthMode="Fill"
+                       AutoGenerateColumnsMode="None"
+                       IsVisible="True"
+                       DataFetchSize="30"
+                       EnableDataVirtualization="True"  
+                       >
+                <datagrid:SfDataGrid.Columns >
+                <datagrid:DataGridTextColumn HeaderText="رم" MappingName="StdId" LoadUIView="False"/>
+                <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="StdName" LoadUIView="False"/>
+                <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="StdUsername" LoadUIView="False" />
+                <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
+                </datagrid:SfDataGrid.Columns>
+            </datagrid:SfDataGrid>
+        </VerticalStackLayout>
+        
+        <ContentView x:Name="StdPopupWindow" IsVisible="False" BackgroundColor="#80000000">
+            <Border Padding="20" BackgroundColor="#ffffff" HeightRequest="500" WidthRequest="600">
+
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                
+                <Grid>
+                    <!-- Define two rows: one for the fixed header and one for the scrollable content -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <!-- Fixed height for the Label -->
+                        <RowDefinition Height="*" />
+                        <!-- Remaining space for ScrollView -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Fixed Header (Row 0) -->
+                    <Label Grid.Row="0" 
+                   Text="إضافة حساب" 
+                   x:Name="StdPWTitle" 
+                   FontSize="Title" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center"
+                   FontFamily="Cairo" />
+
+                    <!-- Scrollable Content (Row 1) -->
+                    <ScrollView Grid.Row="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+
+
+
+                            <Border Grid.Row="0" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <StackLayout>
+
+                                    <buttons:SfRadioGroup Orientation="Horizontal" HeightRequest="80" SelectedValue="teacher" x:Name="UserTypeRadio" HorizontalOptions="Center">
+                                        <buttons:SfRadioButton Text="طالب" x:Name="STDR"/>
+                                        <buttons:SfRadioButton Text="معلم" x:Name="TR"/>
+                                </buttons:SfRadioGroup>
+
+                                <entry:SfTextInputLayout Hint="رم" ContainerType="Filled" WidthRequest="300" HeightRequest="100" x:Name="IdTIL" >
+                                    <Entry x:Name="IdEntry" />
+                                </entry:SfTextInputLayout>
+
+                                
+                                    <entry:SfTextInputLayout Hint="اسم" ContainerType="Filled" IsHintAlwaysFloated="True" WidthRequest="200" HeightRequest="100" x:Name="FNTIL">
+                                    <Entry x:Name="NameEntry" />
+                                </entry:SfTextInputLayout>
+
+                                
+                                </StackLayout>
+                            </Border>
+
+
+
+                            <Border Grid.Row="1" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <StackLayout>
+
+                                    <entry:SfTextInputLayout Hint="اسم المستخدم" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="UNTIL">
+                                        <Entry x:Name="UsernameEntry" TextChanged="UNEChanged" />
+                                    </entry:SfTextInputLayout>
+
+                                    <HorizontalStackLayout Spacing="10">
+                                        <entry:SfTextInputLayout Hint="كلمة السر" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="PTIL" EnablePasswordVisibilityToggle="True">
+                                            <Entry x:Name="PasswordEntry" />
+                                        </entry:SfTextInputLayout>
+
+                                        <entry:SfTextInputLayout Hint="تأكيد كلمة السر" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="CPTIL" EnablePasswordVisibilityToggle="True">
+                                            <Entry x:Name="ConfirmPasswordEntry" />
+                                        </entry:SfTextInputLayout>
+                                    </HorizontalStackLayout>
+                                    <buttons:SfSwitch x:Name="ActiveSwitch" IsVisible="False"/>
+                                </StackLayout>
+                            </Border>
+                            <HorizontalStackLayout Spacing="10" Grid.Row="2" HorizontalOptions="Center" Margin="10">
+                            <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
+                            <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
+                            <buttons:SfButton Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
+                            </HorizontalStackLayout>
+                        
+                        </Grid>
+                    </ScrollView>
+                </Grid>
+
+            </Border>
+
+        </ContentView>
+
+        <Border HorizontalOptions="End" VerticalOptions="End" Margin="20">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="25" />
+            </Border.StrokeShape>
+            <buttons:SfButton Text="+" WidthRequest="50" HeightRequest="50" 
+                               CornerRadius="25" 
+                               Background="#FF5722" 
+                               TextColor="White" 
+                               Clicked="AddClicked" />
+        </Border>
+    </Grid>
+</ContentPage>

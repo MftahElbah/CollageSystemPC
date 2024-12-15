@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TP.Methods
+namespace CollageSystemPC.Methods
 {
     public static class UserSession
     {

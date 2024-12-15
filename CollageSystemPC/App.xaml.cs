@@ -1,7 +1,7 @@
 ﻿using CollageSystemPC.Pages;
+using CollageSystemPC.Methods;
 using SQLite;
-using TP.Methods;
-using TP;
+
 
 namespace CollageSystemPC
 {
@@ -10,15 +10,13 @@ namespace CollageSystemPC
         public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
         public readonly SQLiteAsyncConnection _database;
         public App(){
-            //Register Syncfusion license https://help.syncfusion.com/common/essential-studio/licensing/how-to-generate
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("YOUR LICENSE KEY");
             InitializeComponent();
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzYyMjQ0N0AzMjM4MmUzMDJlMzBmUU9MTWVkem5xU2RxNUE0anZ5UVY1SHV4eWlrZWxEa1ZzMFdXKzFraENZPQ==");
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new StdMangement());
+            return new Window(new StdManagement());
         }
     
 
