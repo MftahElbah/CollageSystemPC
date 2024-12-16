@@ -32,6 +32,17 @@ public partial class StdManagement : ContentPage
         }
 
     }
+    private ObservableCollection<SubTableView> SubTableGetter;
+    public ObservableCollection<SubTableView> SubTableSetter
+    {
+        get => SubTableGetter;
+        set
+        {
+            SubTableGetter = value;
+            OnPropertyChanged(); // Notify that SubTableView property has changed.
+        }
+
+    }
     public readonly SQLiteAsyncConnection _database;
     public DatabaseHelper dbh;
     public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
@@ -43,6 +54,7 @@ public partial class StdManagement : ContentPage
         dbh = new DatabaseHelper(dbPath);
         StdTableGetter = new ObservableCollection<StdViewModel>();
         TeacherTableGetter = new ObservableCollection<TeacherViewModel>();
+        SubTableGetter = new ObservableCollection<SubTableView>();
         BindingContext = this;
 
     }
@@ -51,6 +63,7 @@ public partial class StdManagement : ContentPage
         base.OnAppearing();
         await LoadStd();
         await LoadTeacher();
+        await LoadSub();
         STDR.IsChecked = true;
     }
     private async Task LoadStd()
@@ -62,6 +75,11 @@ public partial class StdManagement : ContentPage
             return;
         }
         StdTableSetter = new ObservableCollection<StdViewModel>(std);
+    }
+    private async Task LoadSub()
+    {
+        var sub = await dbh.GetSubTableViewAsync();
+        SubTableSetter = new ObservableCollection<SubTableView>(sub);
     }
     private async Task LoadTeacher()
     {
@@ -101,6 +119,34 @@ public partial class StdManagement : ContentPage
         StdPopupWindow.IsVisible = true;
         TitleLbl.Text = "تعديل حساب";
         TeacherTableDataGrid.SelectedRow = null;
+    }
+    private void SubTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
+    {
+/*
+        if (StdTableDataGrid.SelectedRow == null)
+        {
+            return;
+        }
+        STDR.IsChecked = true;
+        StdPopupWindow.IsVisible = true;
+        var DataRow = StdTableDataGrid.SelectedRow;
+        IdEntry.Text = DataRow?.GetType().GetProperty("StdId")?.GetValue(DataRow)?.ToString();
+        IdEntry.IsEnabled = false;
+        NameEntry.Text = DataRow?.GetType().GetProperty("StdName")?.GetValue(DataRow)?.ToString();
+        UsernameEntry.Text = DataRow?.GetType().GetProperty("StdUsername")?.GetValue(DataRow)?.ToString();
+        string activeSwitch= DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower();
+
+        if (activeSwitch == "true")
+            ActiveSwitch.IsOn=true;
+        else 
+            ActiveSwitch.IsOn=false;
+
+        UpdateBtn.IsVisible = true;
+        SaveBtn.IsVisible = false;
+        ActiveSwitch.IsVisible=true;
+        StdPopupWindow.IsVisible = true;
+        TitleLbl.Text = "تعديل حساب";
+        TeacherTableDataGrid.SelectedRow = null;*/
     }
     private void TeacherTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
     {

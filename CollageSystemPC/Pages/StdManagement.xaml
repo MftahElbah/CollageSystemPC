@@ -19,9 +19,10 @@
                        SelectionChanged="StdTableSelectionChanged"
                        ColumnWidthMode="Fill"
                        AutoGenerateColumnsMode="None"
-                       IsVisible="True"
                        DataFetchSize="30"
                        EnableDataVirtualization="True"  
+                       IsVisible="False"
+                             
                        >
                 <datagrid:SfDataGrid.Columns >
                 <datagrid:DataGridTextColumn HeaderText="رم" MappingName="StdId" LoadUIView="False"/>
@@ -30,9 +31,30 @@
                 <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
                 </datagrid:SfDataGrid.Columns>
             </datagrid:SfDataGrid>
+            
             <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
                        ItemsSource="{Binding TeacherTableSetter}"
                        SelectionChanged="TeacherTableSelectionChanged"
+                       SelectionMode="Single"
+                       NavigationMode="Row"
+                       ColumnWidthMode="Fill"
+                       AutoGenerateColumnsMode="None"
+                       DataFetchSize="30"
+                       EnableDataVirtualization="True"  
+                       IsVisible="False"
+                                 
+                       >
+                <datagrid:SfDataGrid.Columns >
+                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="TeacherId" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="TeacherName" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="TeacherUsername" LoadUIView="False" />
+                <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
+                </datagrid:SfDataGrid.Columns>
+            </datagrid:SfDataGrid>
+            
+            <datagrid:SfDataGrid x:Name="SubTableDataGrid"
+                       ItemsSource="{Binding SubTableSetter}"
+                       SelectionChanged="SubTableSelectionChanged"
                        SelectionMode="Single"
                        NavigationMode="Row"
                        ColumnWidthMode="Fill"
@@ -42,10 +64,10 @@
                        EnableDataVirtualization="True"  
                        >
                 <datagrid:SfDataGrid.Columns >
-                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="TeacherId" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="TeacherName" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="TeacherUsername" LoadUIView="False" />
-                <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="Id" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم المادة" MappingName="Name" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم الاستاذ" MappingName="TeacherName" LoadUIView="False" />
+                
                 </datagrid:SfDataGrid.Columns>
             </datagrid:SfDataGrid>
         </VerticalStackLayout>
