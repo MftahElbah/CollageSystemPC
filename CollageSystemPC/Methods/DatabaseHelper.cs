@@ -30,38 +30,27 @@ namespace CollageSystemPC.Methods
 
         }
 
-        public async Task<List<SubTableView>> GetSubTableViewAsync()
+        public async Task<List<SubViewModel>> GetSubViewModelsAsync()
         {
             try
             {
-                // Correct SQL query to join SubTable with UsersAccountTable
                 string query = @"
-        SELECT 
-            s.SubId AS Id, 
-            s.SubName AS Name, 
-            u.Name AS TeacherName
-        FROM SubTable s
-        INNER JOIN UsersAccountTable u ON s.UserId = u.UserId";
+                SELECT 
+                    s.SubId, 
+                    s.SubName, 
+                    u.Name AS SubTeacher
+                    FROM SubTable s
+                    INNER JOIN UsersAccountTable u ON s.UserId = u.UserId";
 
-                // Ensure _database is initialized and connected
-                if (_database == null)
-                {
-                    throw new InvalidOperationException("Database connection is not initialized.");
-                }
-
-                return await _database.QueryAsync<SubTableView>(query);
+                return await _database.QueryAsync<SubViewModel>(query);
             }
             catch (SQLiteException ex)
             {
                 Console.WriteLine($"SQLiteException: {ex.Message}");
-                return new List<SubTableView>(); // Return an empty list on error.
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception: {ex.Message}");
-                return new List<SubTableView>(); // Handle other exceptions.
+                return new List<SubViewModel>(); // Return an empty list on error.
             }
         }
+
 
         public async Task<List<StdViewModel>> GetStdTableViewAsync()
         {
@@ -239,6 +228,7 @@ namespace CollageSystemPC.Methods
                     new SubTable {ShowDeg=true,SubId=2,SubName="LLL",UserId=111111000},
                     new SubTable {ShowDeg=true,SubId=3,SubName="MMM",UserId=111111004},
                 };
+                await _database.InsertAllAsync(initialSub); // Inserts the initial Teacher Account into the database.
             }
         }
     }

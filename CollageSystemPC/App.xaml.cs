@@ -16,7 +16,7 @@ namespace CollageSystemPC
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new StdManagement());
+            return new Window(new ManagementPage());
         }
     
 

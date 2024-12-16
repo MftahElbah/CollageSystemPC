@@ -5,14 +5,26 @@
              xmlns:stepProgressBar="clr-namespace:Syncfusion.Maui.ProgressBar;assembly=Syncfusion.Maui.ProgressBar"
              xmlns:entry="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
-             x:Class="CollageSystemPC.Pages.StdManagement"
+             x:Class="CollageSystemPC.Pages.ManagementPage"
              BackgroundColor="#E4E4E4"
              FlowDirection="RightToLeft"
              >
     <Grid>
         
-        <VerticalStackLayout>
-        <datagrid:SfDataGrid x:Name="StdTableDataGrid"
+        <VerticalStackLayout HorizontalOptions="Center">
+            
+            <Border BackgroundColor="#DCDCDC" HorizontalOptions="Center"  Margin="10" Padding="10">
+                <Border.StrokeShape >
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <HorizontalStackLayout>
+                    <buttons:SfButton Text="الطلبة" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" Background="Transparent" TextColor="#1a1a1a" />
+                    <buttons:SfButton Text="الاساتذة" WidthRequest="100" HeightRequest="40" x:Name="TeachersTableShower" Clicked="TeachersTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
+                    <buttons:SfButton Text="المواد" WidthRequest="70" HeightRequest="40" x:Name="SubTableShower" Clicked="SubTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
+                </HorizontalStackLayout>
+            </Border>
+            
+            <datagrid:SfDataGrid x:Name="StdTableDataGrid"
                        ItemsSource="{Binding StdTableSetter}"
                        SelectionMode="Single"
                        NavigationMode="Row"
@@ -20,9 +32,7 @@
                        ColumnWidthMode="Fill"
                        AutoGenerateColumnsMode="None"
                        DataFetchSize="30"
-                       EnableDataVirtualization="True"  
-                       IsVisible="False"
-                             
+                       EnableDataVirtualization="True"                            
                        >
                 <datagrid:SfDataGrid.Columns >
                 <datagrid:DataGridTextColumn HeaderText="رم" MappingName="StdId" LoadUIView="False"/>
@@ -41,8 +51,6 @@
                        AutoGenerateColumnsMode="None"
                        DataFetchSize="30"
                        EnableDataVirtualization="True"  
-                       IsVisible="False"
-                                 
                        >
                 <datagrid:SfDataGrid.Columns >
                     <datagrid:DataGridTextColumn HeaderText="رم" MappingName="TeacherId" LoadUIView="False"/>
@@ -53,20 +61,19 @@
             </datagrid:SfDataGrid>
             
             <datagrid:SfDataGrid x:Name="SubTableDataGrid"
-                       ItemsSource="{Binding SubTableSetter}"
+                       ItemsSource="{Binding SubSetter}"
                        SelectionChanged="SubTableSelectionChanged"
                        SelectionMode="Single"
                        NavigationMode="Row"
                        ColumnWidthMode="Fill"
                        AutoGenerateColumnsMode="None"
-                       IsVisible="True"
                        DataFetchSize="30"
-                       EnableDataVirtualization="True"  
+                       EnableDataVirtualization="True" 
                        >
-                <datagrid:SfDataGrid.Columns >
-                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="Id" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم المادة" MappingName="Name" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم الاستاذ" MappingName="TeacherName" LoadUIView="False" />
+                <datagrid:SfDataGrid.Columns>
+                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="SubId" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم المادة" MappingName="SubName" LoadUIView="False"/>
+                    <datagrid:DataGridTextColumn HeaderText="اسم الاستاذ" MappingName="SubTeacher" LoadUIView="False" />
                 
                 </datagrid:SfDataGrid.Columns>
             </datagrid:SfDataGrid>
@@ -78,7 +85,7 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
-                
+
                 <Grid>
                     <!-- Define two rows: one for the fixed header and one for the scrollable content -->
                     <Grid.RowDefinitions>
@@ -101,40 +108,27 @@
                     <ScrollView Grid.Row="1">
                         <Grid>
                             <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-
-
-
-
                             <Border Grid.Row="0" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
                                 <StackLayout>
-
                                     <buttons:SfRadioGroup Orientation="Horizontal" HeightRequest="80" SelectedValue="teacher" x:Name="UserTypeRadio" HorizontalOptions="Center">
                                         <buttons:SfRadioButton Text="طالب" x:Name="STDR"/>
                                         <buttons:SfRadioButton Text="معلم" x:Name="TR"/>
-                                </buttons:SfRadioGroup>
-
-                                <entry:SfTextInputLayout Hint="رم" ContainerType="Filled" WidthRequest="300" HeightRequest="100" x:Name="IdTIL" >
-                                    <Entry x:Name="IdEntry" />
-                                </entry:SfTextInputLayout>
-
-                                
+                                    </buttons:SfRadioGroup>
+                                    <entry:SfTextInputLayout Hint="رم" ContainerType="Filled" WidthRequest="300" HeightRequest="100" x:Name="IdTIL" >
+                                        <Entry x:Name="IdEntry" />
+                                    </entry:SfTextInputLayout>
                                     <entry:SfTextInputLayout Hint="اسم" ContainerType="Filled" IsHintAlwaysFloated="True" WidthRequest="200" HeightRequest="100" x:Name="FNTIL">
-                                    <Entry x:Name="NameEntry" />
-                                </entry:SfTextInputLayout>
-
-                                
+                                        <Entry x:Name="NameEntry" />
+                                    </entry:SfTextInputLayout>
                                 </StackLayout>
                             </Border>
-
-
-
                             <Border Grid.Row="1" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
@@ -142,7 +136,7 @@
                                 <StackLayout>
 
                                     <entry:SfTextInputLayout Hint="اسم المستخدم" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="UNTIL">
-                                        <Entry x:Name="UsernameEntry" TextChanged="UNEChanged" />
+                                        <Entry x:Name="UsernameEntry" />
                                     </entry:SfTextInputLayout>
 
                                     <HorizontalStackLayout Spacing="10">
@@ -158,17 +152,34 @@
                                 </StackLayout>
                             </Border>
                             <HorizontalStackLayout Spacing="10" Grid.Row="2" HorizontalOptions="Center" Margin="10">
-                            <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
-                            <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
-                            <buttons:SfButton Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
+                                <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
+                                <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
+                                <buttons:SfButton Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
                             </HorizontalStackLayout>
-                        
                         </Grid>
                     </ScrollView>
                 </Grid>
-
             </Border>
+        </ContentView>
 
+        <ContentView x:Name="SubPopupWindow" IsVisible="False" BackgroundColor="#80000000">
+            <Border Padding="20" BackgroundColor="#ffffff" HeightRequest="200" WidthRequest="250">
+
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="10" VerticalOptions="Center">
+                    <Label Text="المادة" FontSize="Title" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label x:Name="SubNameLbl" HorizontalOptions="Center" FontSize="16"/>
+                    <Label x:Name="TeacherNameLbl" HorizontalOptions="Center" FontSize="16"/>
+                    <HorizontalStackLayout Spacing="10">
+                        <buttons:SfButton Clicked="DeleteSubClick" Text="حذف"/>
+                        <buttons:SfButton Clicked="CancelSubClick" Text="الغاء"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                
+            </Border>
         </ContentView>
 
         <Border HorizontalOptions="End" VerticalOptions="End" Margin="20">

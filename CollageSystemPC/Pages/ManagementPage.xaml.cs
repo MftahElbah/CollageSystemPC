@@ -1,15 +1,14 @@
 ﻿using SQLite;
 using System.Collections.ObjectModel;
 using CollageSystemPC.Methods;
-using Syncfusion.Maui.ProgressBar;
-using Windows.System;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml.Linq;
+using Syncfusion.Maui.ListView;
+using Microsoft.UI.Xaml.Controls;
 using System;
+
 
 namespace CollageSystemPC.Pages;
 
-public partial class StdManagement : ContentPage
+public partial class ManagementPage : ContentPage
 {
     private ObservableCollection<StdViewModel> StdTableGetter;
     public ObservableCollection<StdViewModel> StdTableSetter
@@ -32,30 +31,32 @@ public partial class StdManagement : ContentPage
         }
 
     }
-    private ObservableCollection<SubTableView> SubTableGetter;
-    public ObservableCollection<SubTableView> SubTableSetter
+    private ObservableCollection<SubViewModel> SubGetter;
+    public ObservableCollection<SubViewModel> SubSetter
     {
-        get => SubTableGetter;
+        get => SubGetter;
         set
         {
-            SubTableGetter = value;
-            OnPropertyChanged(); // Notify that SubTableView property has changed.
+            SubGetter = value;
+            OnPropertyChanged();
         }
-
     }
     public readonly SQLiteAsyncConnection _database;
     public DatabaseHelper dbh;
+    public int sid;
     public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
     
-    public StdManagement()
+    public ManagementPage()
 	{
         InitializeComponent();
         _database = new SQLiteAsyncConnection(dbPath);
         dbh = new DatabaseHelper(dbPath);
         StdTableGetter = new ObservableCollection<StdViewModel>();
         TeacherTableGetter = new ObservableCollection<TeacherViewModel>();
-        SubTableGetter = new ObservableCollection<SubTableView>();
+        SubGetter = new ObservableCollection<SubViewModel>();
         BindingContext = this;
+        PageShowStatus(1);
+        
 
     }
     protected override async void OnAppearing()
@@ -69,26 +70,17 @@ public partial class StdManagement : ContentPage
     private async Task LoadStd()
     {
         var std = await dbh.GetStdTableViewAsync();
-        if (std == null)
-        {
-            await DisplayAlert("no", "no data", "niga");
-            return;
-        }
         StdTableSetter = new ObservableCollection<StdViewModel>(std);
     }
     private async Task LoadSub()
     {
-        var sub = await dbh.GetSubTableViewAsync();
-        SubTableSetter = new ObservableCollection<SubTableView>(sub);
+        var sub = await dbh.GetSubViewModelsAsync();
+        SubSetter = new ObservableCollection<SubViewModel>(sub);
+        
     }
     private async Task LoadTeacher()
     {
         var teacher = await dbh.GetTeacherTableViewAsync();
-        if (teacher == null)
-        {
-            await DisplayAlert("no", "no data", "niga");
-            return;
-        }
         TeacherTableSetter = new ObservableCollection<TeacherViewModel>(teacher);
     }
 
@@ -122,32 +114,28 @@ public partial class StdManagement : ContentPage
     }
     private void SubTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
     {
-/*
-        if (StdTableDataGrid.SelectedRow == null)
+        if (SubTableDataGrid.SelectedRow == null)
         {
             return;
         }
-        STDR.IsChecked = true;
-        StdPopupWindow.IsVisible = true;
-        var DataRow = StdTableDataGrid.SelectedRow;
-        IdEntry.Text = DataRow?.GetType().GetProperty("StdId")?.GetValue(DataRow)?.ToString();
-        IdEntry.IsEnabled = false;
-        NameEntry.Text = DataRow?.GetType().GetProperty("StdName")?.GetValue(DataRow)?.ToString();
-        UsernameEntry.Text = DataRow?.GetType().GetProperty("StdUsername")?.GetValue(DataRow)?.ToString();
-        string activeSwitch= DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower();
-
-        if (activeSwitch == "true")
-            ActiveSwitch.IsOn=true;
-        else 
-            ActiveSwitch.IsOn=false;
-
-        UpdateBtn.IsVisible = true;
-        SaveBtn.IsVisible = false;
-        ActiveSwitch.IsVisible=true;
-        StdPopupWindow.IsVisible = true;
-        TitleLbl.Text = "تعديل حساب";
-        TeacherTableDataGrid.SelectedRow = null;*/
+        var DataRow = SubTableDataGrid.SelectedRow;
+        
+        sid = int.Parse(DataRow?.GetType().GetProperty("SubId")?.GetValue(DataRow)?.ToString());
+        SubNameLbl.Text = $"اسم المادة: {DataRow?.GetType().GetProperty("SubName")?.GetValue(DataRow)?.ToString()}";
+        TeacherNameLbl.Text = $"اسم الأستاذ: {DataRow?.GetType().GetProperty("SubTeacher")?.GetValue(DataRow)?.ToString()}";
+        SubPopupWindow.IsVisible = true;
     }
+    private async void DeleteSubClick(object sender, EventArgs e){
+        var Sub = await _database.Table<SubTable>().FirstOrDefaultAsync(d => d.SubId == sid);
+        await _database.DeleteAsync(Sub);
+        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        SubPopupWindow.IsVisible = false;
+        LoadSub();
+    }
+    private async void CancelSubClick(object sender, EventArgs e){
+        SubPopupWindow.IsVisible = false;
+    }
+
     private void TeacherTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
     {
 
@@ -177,7 +165,7 @@ public partial class StdManagement : ContentPage
         StdTableDataGrid.SelectedRow = null;
     }
 
-    private void UNEChanged(object sender, TextChangedEventArgs e)
+    /*private void UNEChanged(object sender, TextChangedEventArgs e)
     {
         // Use regex to allow only English letters
         string filteredText = new string(e.NewTextValue.Where(char.IsLetter).ToArray());
@@ -187,7 +175,7 @@ public partial class StdManagement : ContentPage
         {
             UsernameEntry.Text = filteredText;
         }
-    }
+    }*/
     private async void UpdateBtnClicked(object sender, EventArgs e)
     {
         int id = int.Parse(IdEntry.Text);
@@ -320,7 +308,73 @@ public partial class StdManagement : ContentPage
         PasswordEntry.Text = "";
         ConfirmPasswordEntry.Text = "";
     }
-   
+
+    private void STDTableClicked(object sender, EventArgs e)
+    {
+        PageShowStatus(1);
+    }
+    private void TeachersTableShowerClicked(object sender, EventArgs e)
+    {
+        PageShowStatus(2);
+    }
+    private void SubTableShowerClicked(object sender, EventArgs e)
+    {
+        PageShowStatus(3);
+    }
+
+    public void PageShowStatus(int Status)
+    {
+        //to show posts
+        if (Status == 1)
+        {
+            STDTableShower.TextColor = Color.FromArgb("#DCDCDC");
+            STDTableShower.Background = Color.FromArgb("#2374AB");
+            StdTableDataGrid.IsVisible = true;
+
+            TeachersTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            TeachersTableShower.Background = Colors.Transparent;
+            TeacherTableDataGrid.IsVisible = false;
+
+            SubTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            SubTableShower.Background = Colors.Transparent;
+            SubTableDataGrid.IsVisible = false;
+
+        }
+        //to show Degrees Table
+        if (Status == 2)
+        {
+            STDTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            STDTableShower.Background = Colors.Transparent;
+            StdTableDataGrid.IsVisible = false;
+
+            TeachersTableShower.TextColor = Color.FromArgb("#DCDCDC");
+            TeachersTableShower.Background = Color.FromArgb("#2374AB");
+            TeacherTableDataGrid.IsVisible = true;
+
+            SubTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            SubTableShower.Background = Colors.Transparent;
+            SubTableDataGrid.IsVisible = false;
+
+
+        }
+        //to show To show books
+        if (Status == 3)
+        {
+            STDTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            STDTableShower.Background = Colors.Transparent;
+            StdTableDataGrid.IsVisible = false;
+
+            TeachersTableShower.TextColor = Color.FromArgb("#1A1A1A");
+            TeachersTableShower.Background = Colors.Transparent;
+            TeacherTableDataGrid.IsVisible = false;
+
+            SubTableShower.TextColor = Color.FromArgb("#DCDCDC");
+            SubTableShower.Background = Color.FromArgb("#2374AB");
+            SubTableDataGrid.IsVisible = true;
+
+
+        }
+    }
 }
 
 //when i click on exist data if id entry not enable u can update without updateing password , that means he is editing

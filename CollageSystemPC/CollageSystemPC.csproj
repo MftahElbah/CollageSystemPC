@@ -87,6 +87,12 @@
      </ItemGroup>
 	
 	 <ItemGroup>
+	   <Compile Update="Pages\ManagementPage.xaml.cs">
+	     <DependentUpon>ManagementPage.xaml</DependentUpon>
+	   </Compile>
+	 </ItemGroup>
+	
+	 <ItemGroup>
 	   <MauiXaml Update="Pages\StdMangement.xaml">
 	     <Generator>MSBuild:Compile</Generator>
 	   </MauiXaml>

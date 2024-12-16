@@ -40,7 +40,7 @@ namespace CollageSystemPC
         public int SubId { get; set; }
         public string SubName { get; set; }
         public bool ShowDeg {  get; set; }
-        public int UserId { get; set; } //Foreign key ref to UsersAccountTable.UserId
+        public int UserId { get; set; }
     }
         /*public string SubTeacher { get; set; }*/
 }

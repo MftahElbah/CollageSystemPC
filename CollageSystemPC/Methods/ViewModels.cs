@@ -20,10 +20,10 @@ namespace CollageSystemPC.Methods
         public string TeacherUsername { get; set; }
         public bool IsActive { get; set; }
     }
-    public class SubTableView
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string TeacherName { get; set; }
+    public class SubViewModel{
+        public int SubId { get; set; }       // From SubTable
+        public string SubName { get; set; }  // From SubTable
+        public string SubTeacher { get; set; } // From UsersAccountTable (UserId == SubTable.UserId)
     }
+
 }
