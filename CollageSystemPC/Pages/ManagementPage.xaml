@@ -12,18 +12,22 @@
     <Grid>
         
         <VerticalStackLayout HorizontalOptions="Center">
-            
+
             <Border BackgroundColor="#DCDCDC" HorizontalOptions="Center"  Margin="10" Padding="10">
                 <Border.StrokeShape >
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
                 <HorizontalStackLayout>
-                    <buttons:SfButton Text="الطلبة" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" Background="Transparent" TextColor="#1a1a1a" />
+                    <buttons:SfButton Text="الطلبة" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" Background="Transparent" TextColor="#1a1a1a" FlowDirection="RightToLeft"/>
                     <buttons:SfButton Text="الاساتذة" WidthRequest="100" HeightRequest="40" x:Name="TeachersTableShower" Clicked="TeachersTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
                     <buttons:SfButton Text="المواد" WidthRequest="70" HeightRequest="40" x:Name="SubTableShower" Clicked="SubTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
                 </HorizontalStackLayout>
             </Border>
-            
+            <entry:SfTextInputLayout x:Name="SearchBarTIL" WidthRequest="200" Hint="بحث" IsHintAlwaysFloated="True">
+                <Entry x:Name="SearchBarEntry" TextChanged="SearchBarEntryChanged" TextColor="#1a1a1a" IsTextPredictionEnabled="False" IsSpellCheckEnabled="False"/>
+            </entry:SfTextInputLayout>
+            <Label x:Name="testlbl" Text="0" FontSize="50" HorizontalOptions="Center"/>
+            <buttons:SfButton Text="تعطيل الطلبة" WidthRequest="150" HeightRequest="40" x:Name="DeActiveStd" Clicked="DeActiveStdClicked" Background="#1a1a1a" TextColor="#E4E4E4" />
             <datagrid:SfDataGrid x:Name="StdTableDataGrid"
                        ItemsSource="{Binding StdTableSetter}"
                        SelectionMode="Single"
@@ -149,11 +153,12 @@
                                         </entry:SfTextInputLayout>
                                     </HorizontalStackLayout>
                                     <buttons:SfSwitch x:Name="ActiveSwitch" IsVisible="False"/>
+                                    <buttons:SfButton Text="حذف الحساب" WidthRequest="100" HeightRequest="40" x:Name="DelAccBtn" Clicked="DelAccBtnClicked" />
                                 </StackLayout>
                             </Border>
                             <HorizontalStackLayout Spacing="10" Grid.Row="2" HorizontalOptions="Center" Margin="10">
                                 <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
-                                <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
+                                <buttons:SfButton Text="تعديل" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
                                 <buttons:SfButton Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
                             </HorizontalStackLayout>
                         </Grid>

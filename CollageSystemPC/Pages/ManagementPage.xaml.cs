@@ -20,6 +20,18 @@ public partial class ManagementPage : ContentPage
             OnPropertyChanged(); // Notify that SubTableView property has changed.
         }
     }
+    public ObservableCollection<StdViewModel> SearchStdTableSetter
+    {
+        get => StdTableGetter;
+        set
+        {
+            StdTableGetter = value;
+            OnPropertyChanged(); // Notify that SubTableView property has changed.
+        }
+    }
+
+
+
     private ObservableCollection<TeacherViewModel> TeacherTableGetter;
     public ObservableCollection<TeacherViewModel> TeacherTableSetter
     {
@@ -31,6 +43,18 @@ public partial class ManagementPage : ContentPage
         }
 
     }
+    public ObservableCollection<TeacherViewModel> SearchTeacherTableSetter
+    {
+        get => TeacherTableGetter;
+        set
+        {
+            TeacherTableGetter = value;
+            OnPropertyChanged(); // Notify that SubTableView property has changed.
+        }
+
+    }
+
+
     private ObservableCollection<SubViewModel> SubGetter;
     public ObservableCollection<SubViewModel> SubSetter
     {
@@ -41,9 +65,21 @@ public partial class ManagementPage : ContentPage
             OnPropertyChanged();
         }
     }
+    public ObservableCollection<SubViewModel> SearchSubSetter
+    {
+        get => SubGetter;
+        set
+        {
+            SubGetter = value;
+            OnPropertyChanged();
+        }
+    }
+
+
     public readonly SQLiteAsyncConnection _database;
     public DatabaseHelper dbh;
     public int sid;
+    public string SearchWord;
     public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
     
     public ManagementPage()
@@ -54,34 +90,62 @@ public partial class ManagementPage : ContentPage
         StdTableGetter = new ObservableCollection<StdViewModel>();
         TeacherTableGetter = new ObservableCollection<TeacherViewModel>();
         SubGetter = new ObservableCollection<SubViewModel>();
-        BindingContext = this;
+        BindingContext = this;  
         PageShowStatus(1);
-        
+        LoadStd();
+        LoadTeacher();
+        LoadSub();
+        STDR.IsChecked = true;
 
     }
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadStd();
-        await LoadTeacher();
-        await LoadSub();
-        STDR.IsChecked = true;
+        
     }
     private async Task LoadStd()
     {
         var std = await dbh.GetStdTableViewAsync();
-        StdTableSetter = new ObservableCollection<StdViewModel>(std);
-    }
-    private async Task LoadSub()
-    {
-        var sub = await dbh.GetSubViewModelsAsync();
-        SubSetter = new ObservableCollection<SubViewModel>(sub);
-        
+
+        // Clear existing data and repopulate StdTableSetter
+        StdTableSetter.Clear();
+        foreach (var student in std)
+        {
+            StdTableSetter.Add(student);
+        }
+
+        // Set initial ItemsSource to StdTableSetter
+        StdTableDataGrid.ItemsSource = StdTableSetter;
     }
     private async Task LoadTeacher()
     {
         var teacher = await dbh.GetTeacherTableViewAsync();
-        TeacherTableSetter = new ObservableCollection<TeacherViewModel>(teacher);
+
+        // Clear existing data and repopulate StdTableSetter
+        TeacherTableSetter.Clear();
+        foreach (var T in teacher)
+        {
+            TeacherTableSetter.Add(T);
+        }
+
+        // Set initial ItemsSource to StdTableSetter
+        TeacherTableDataGrid.ItemsSource = TeacherTableSetter;
+
+    }
+    private async Task LoadSub()
+    {      
+        var sub = await dbh.GetSubViewModelsAsync();
+
+        // Clear existing data and repopulate StdTableSetter
+        SubSetter.Clear();
+        foreach (var s in sub)
+        {
+            SubSetter.Add(s);
+        }
+
+        // Set initial ItemsSource to StdTableSetter
+        SubTableDataGrid.ItemsSource = SubSetter;
+
     }
 
     private void StdTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
@@ -104,7 +168,7 @@ public partial class ManagementPage : ContentPage
             ActiveSwitch.IsOn=true;
         else 
             ActiveSwitch.IsOn=false;
-
+        DelAccBtn.IsVisible = true;
         UpdateBtn.IsVisible = true;
         SaveBtn.IsVisible = false;
         ActiveSwitch.IsVisible=true;
@@ -112,30 +176,6 @@ public partial class ManagementPage : ContentPage
         TitleLbl.Text = "تعديل حساب";
         TeacherTableDataGrid.SelectedRow = null;
     }
-    private void SubTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
-    {
-        if (SubTableDataGrid.SelectedRow == null)
-        {
-            return;
-        }
-        var DataRow = SubTableDataGrid.SelectedRow;
-        
-        sid = int.Parse(DataRow?.GetType().GetProperty("SubId")?.GetValue(DataRow)?.ToString());
-        SubNameLbl.Text = $"اسم المادة: {DataRow?.GetType().GetProperty("SubName")?.GetValue(DataRow)?.ToString()}";
-        TeacherNameLbl.Text = $"اسم الأستاذ: {DataRow?.GetType().GetProperty("SubTeacher")?.GetValue(DataRow)?.ToString()}";
-        SubPopupWindow.IsVisible = true;
-    }
-    private async void DeleteSubClick(object sender, EventArgs e){
-        var Sub = await _database.Table<SubTable>().FirstOrDefaultAsync(d => d.SubId == sid);
-        await _database.DeleteAsync(Sub);
-        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
-        SubPopupWindow.IsVisible = false;
-        LoadSub();
-    }
-    private async void CancelSubClick(object sender, EventArgs e){
-        SubPopupWindow.IsVisible = false;
-    }
-
     private void TeacherTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
     {
 
@@ -158,24 +198,65 @@ public partial class ManagementPage : ContentPage
             ActiveSwitch.IsOn=false;
 
         UpdateBtn.IsVisible = true;
+        DelAccBtn.IsVisible = true;
         SaveBtn.IsVisible = false;
         ActiveSwitch.IsVisible=true;
         TitleLbl.Text = "تعديل حساب";
         StdPopupWindow.IsVisible = true;
         StdTableDataGrid.SelectedRow = null;
     }
-
-    /*private void UNEChanged(object sender, TextChangedEventArgs e)
+    private void SubTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
     {
-        // Use regex to allow only English letters
-        string filteredText = new string(e.NewTextValue.Where(char.IsLetter).ToArray());
-
-        // If the text contains invalid characters, revert to the filtered text
-        if (e.NewTextValue != filteredText)
+        if (SubTableDataGrid.SelectedRow == null)
         {
-            UsernameEntry.Text = filteredText;
+            return;
         }
-    }*/
+        var DataRow = SubTableDataGrid.SelectedRow;
+        
+        sid = int.Parse(DataRow?.GetType().GetProperty("SubId")?.GetValue(DataRow)?.ToString());
+        SubNameLbl.Text = $"اسم المادة: {DataRow?.GetType().GetProperty("SubName")?.GetValue(DataRow)?.ToString()}";
+        TeacherNameLbl.Text = $"اسم الأستاذ: {DataRow?.GetType().GetProperty("SubTeacher")?.GetValue(DataRow)?.ToString()}";
+        SubPopupWindow.IsVisible = true;
+    }  
+    private async void DeleteSubClick(object sender, EventArgs e){
+        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذه المادة؟", "نعم", "لا");
+        if (!conf)
+        { return; }
+        var Sub = await _database.Table<SubTable>().FirstOrDefaultAsync(d => d.SubId == sid);
+        await _database.DeleteAsync(Sub);
+        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        SubPopupWindow.IsVisible = false;
+        await LoadSub();
+    }
+    private async void DeActiveStdClicked(object sender, EventArgs e) {
+        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من تعطيل حسابات جميع الطلبة؟", "نعم", "لا");
+        if (!conf)
+        { return; }
+        var stdda = await _database.Table<UsersAccountTable>().Where(s => s.UserType == 2).ToListAsync();
+        foreach(var std in stdda)
+        {
+            std.IsActive = false;
+        }
+            await _database.UpdateAllAsync(stdda);
+        await DisplayAlert("تعطيل", "تم العملية بنجاح", "حسنا");
+        await LoadStd();
+
+    }
+    private async void DelAccBtnClicked(object sender, EventArgs e){
+        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
+        if (!conf)
+        { return; }
+        int uid = int.Parse(IdEntry.Text);
+        var user = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == uid);
+        await _database.DeleteAsync(user);
+        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        StdPopupWindow.IsVisible = false;
+        await LoadTeacher();
+        await LoadStd();
+    }
+    private void CancelSubClick(object sender, EventArgs e){
+        SubPopupWindow.IsVisible = false;
+    }
     private async void UpdateBtnClicked(object sender, EventArgs e)
     {
         int id = int.Parse(IdEntry.Text);
@@ -284,12 +365,11 @@ public partial class ManagementPage : ContentPage
         await LoadTeacher();
         ClearEntrys();
     }
-
-
     private void AddClicked(object sender, EventArgs e){
         STDR.IsChecked = true;
         IdEntry.IsEnabled = true;
         SaveBtn.IsVisible = true;
+        DelAccBtn.IsVisible = false;
         UpdateBtn.IsVisible = false;
         ActiveSwitch.IsVisible = false;
         StdPopupWindow.IsVisible = true;
@@ -299,7 +379,6 @@ public partial class ManagementPage : ContentPage
             StdPopupWindow.IsVisible=false;
             ClearEntrys();           
     }
-
     private void ClearEntrys(){
         STDR.IsChecked = true;
         IdEntry.Text = "";
@@ -309,6 +388,65 @@ public partial class ManagementPage : ContentPage
         ConfirmPasswordEntry.Text = "";
     }
 
+    private async void SearchBarEntryChanged(object sender, Microsoft.Maui.Controls.TextChangedEventArgs e){
+
+        if (string.IsNullOrEmpty(SearchBarEntry.Text.ToLower())){
+            await LoadStd();
+            await LoadSub();
+            await LoadTeacher();
+            /*testlbl.Text = "0";*/
+            return;
+        }
+
+        if(StdTableDataGrid.IsVisible){
+            /*testlbl.Text = SearchWord;*/
+            
+            var filteredStudents = StdTableSetter
+            .Where(s => s.StdName.Contains(SearchBarEntry.Text.ToLower()))
+            .ToList();
+
+            SearchStdTableSetter.Clear();
+            // Clear and populate SearchStdTableSetter with filtered results
+            foreach (var student in filteredStudents)
+            {
+                SearchStdTableSetter.Add(student);
+            }
+
+            // Switch DataGrid ItemsSource to SearchStdTableSetter
+            StdTableDataGrid.ItemsSource = SearchStdTableSetter;
+            return;
+        }
+
+        if(SearchBarTIL.HelperText == "بحث بأسم المعلم")
+        {
+            var filteredTeachers = TeacherTableSetter
+            .Where(s => s.TeacherName.ToLower().Contains(SearchBarEntry.Text.ToLower()))
+            .ToList();
+
+            SearchTeacherTableSetter.Clear();
+            foreach (var teacher in filteredTeachers)
+            {
+                SearchTeacherTableSetter.Add(teacher);
+            }
+            TeacherTableDataGrid.ItemsSource = SearchTeacherTableSetter;
+            return;
+        }
+
+        if(SearchBarTIL.HelperText == "بحث بأسم المادة")
+        {
+            var filteredSubjects = SubSetter
+            .Where(s => s.SubName.ToLower().Contains(SearchBarEntry.Text.ToLower()))
+            .ToList();
+
+            SearchSubSetter.Clear();
+            foreach (var sub in filteredSubjects)
+            {
+                SearchSubSetter.Add(sub);
+            }
+            SubTableDataGrid.ItemsSource = SearchSubSetter;
+            return;
+        }
+    }
     private void STDTableClicked(object sender, EventArgs e)
     {
         PageShowStatus(1);
@@ -330,6 +468,7 @@ public partial class ManagementPage : ContentPage
             STDTableShower.TextColor = Color.FromArgb("#DCDCDC");
             STDTableShower.Background = Color.FromArgb("#2374AB");
             StdTableDataGrid.IsVisible = true;
+            DeActiveStd.IsVisible = true;
 
             TeachersTableShower.TextColor = Color.FromArgb("#1A1A1A");
             TeachersTableShower.Background = Colors.Transparent;
@@ -339,6 +478,7 @@ public partial class ManagementPage : ContentPage
             SubTableShower.Background = Colors.Transparent;
             SubTableDataGrid.IsVisible = false;
 
+            SearchBarTIL.HelperText = "بحث بأسم الطالب";
         }
         //to show Degrees Table
         if (Status == 2)
@@ -346,6 +486,7 @@ public partial class ManagementPage : ContentPage
             STDTableShower.TextColor = Color.FromArgb("#1A1A1A");
             STDTableShower.Background = Colors.Transparent;
             StdTableDataGrid.IsVisible = false;
+            DeActiveStd.IsVisible = false;
 
             TeachersTableShower.TextColor = Color.FromArgb("#DCDCDC");
             TeachersTableShower.Background = Color.FromArgb("#2374AB");
@@ -356,6 +497,7 @@ public partial class ManagementPage : ContentPage
             SubTableDataGrid.IsVisible = false;
 
 
+            SearchBarTIL.HelperText = "بحث بأسم المعلم";
         }
         //to show To show books
         if (Status == 3)
@@ -363,6 +505,7 @@ public partial class ManagementPage : ContentPage
             STDTableShower.TextColor = Color.FromArgb("#1A1A1A");
             STDTableShower.Background = Colors.Transparent;
             StdTableDataGrid.IsVisible = false;
+            DeActiveStd.IsVisible = false;
 
             TeachersTableShower.TextColor = Color.FromArgb("#1A1A1A");
             TeachersTableShower.Background = Colors.Transparent;
@@ -373,8 +516,8 @@ public partial class ManagementPage : ContentPage
             SubTableDataGrid.IsVisible = true;
 
 
+            SearchBarTIL.HelperText = "بحث بأسم المادة";
         }
     }
 }
-
-//when i click on exist data if id entry not enable u can update without updateing password , that means he is editing
+                        
