@@ -165,9 +165,9 @@ public partial class ManagementPage : ContentPage
         string activeSwitch= DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower();
 
         if (activeSwitch == "true")
-            ActiveSwitch.IsOn=true;
-        else 
-            ActiveSwitch.IsOn=false;
+            ActiveSwitch.IsToggled=true;
+        else
+            ActiveSwitch.IsToggled = false;
         DelAccBtn.IsVisible = true;
         UpdateBtn.IsVisible = true;
         SaveBtn.IsVisible = false;
@@ -193,9 +193,9 @@ public partial class ManagementPage : ContentPage
         string activeSwitch= DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower();
 
         if (activeSwitch == "true")
-            ActiveSwitch.IsOn=true;
+            ActiveSwitch.IsToggled = true;
         else 
-            ActiveSwitch.IsOn=false;
+            ActiveSwitch.IsToggled = false;
 
         UpdateBtn.IsVisible = true;
         DelAccBtn.IsVisible = true;
@@ -281,7 +281,7 @@ public partial class ManagementPage : ContentPage
             user.Name = NameEntry.Text;
             user.Username = UsernameEntry.Text;
             user.UserType = UTInt;
-            user.IsActive = ActiveSwitch.IsOn.Value;
+            user.IsActive = ActiveSwitch.IsToggled;
             if (!string.IsNullOrEmpty(PasswordEntry.Text))
             {
                 if (PasswordEntry.Text.Length < 8)

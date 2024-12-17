@@ -4,7 +4,6 @@
              xmlns:datagrid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:stepProgressBar="clr-namespace:Syncfusion.Maui.ProgressBar;assembly=Syncfusion.Maui.ProgressBar"
              xmlns:entry="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
-             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              x:Class="CollageSystemPC.Pages.ManagementPage"
              BackgroundColor="#E4E4E4"
              FlowDirection="RightToLeft"
@@ -18,16 +17,15 @@
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
                 <HorizontalStackLayout>
-                    <buttons:SfButton Text="الطلبة" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" Background="Transparent" TextColor="#1a1a1a" FlowDirection="RightToLeft"/>
-                    <buttons:SfButton Text="الاساتذة" WidthRequest="100" HeightRequest="40" x:Name="TeachersTableShower" Clicked="TeachersTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
-                    <buttons:SfButton Text="المواد" WidthRequest="70" HeightRequest="40" x:Name="SubTableShower" Clicked="SubTableShowerClicked" Background="Transparent" TextColor="#1a1a1a" />
+                    <Button Text="الطلبة" CornerRadius="20" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" FlowDirection="RightToLeft"/>
+                    <Button Text="الاساتذة" CornerRadius="20" WidthRequest="100" HeightRequest="40" x:Name="TeachersTableShower" Clicked="TeachersTableShowerClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" />
+                    <Button Text="المواد" CornerRadius="20" WidthRequest="70" HeightRequest="40" x:Name="SubTableShower" Clicked="SubTableShowerClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" />
                 </HorizontalStackLayout>
             </Border>
             <entry:SfTextInputLayout x:Name="SearchBarTIL" WidthRequest="200" Hint="بحث" IsHintAlwaysFloated="True">
                 <Entry x:Name="SearchBarEntry" TextChanged="SearchBarEntryChanged" TextColor="#1a1a1a" IsTextPredictionEnabled="False" IsSpellCheckEnabled="False"/>
             </entry:SfTextInputLayout>
-            <Label x:Name="testlbl" Text="0" FontSize="50" HorizontalOptions="Center"/>
-            <buttons:SfButton Text="تعطيل الطلبة" WidthRequest="150" HeightRequest="40" x:Name="DeActiveStd" Clicked="DeActiveStdClicked" Background="#1a1a1a" TextColor="#E4E4E4" />
+            <Button Text="تعطيل الطلبة" WidthRequest="150" HeightRequest="40" x:Name="DeActiveStd" Clicked="DeActiveStdClicked" BackgroundColor="#1a1a1a" TextColor="#E4E4E4" CornerRadius="20"/>
             <datagrid:SfDataGrid x:Name="StdTableDataGrid"
                        ItemsSource="{Binding StdTableSetter}"
                        SelectionMode="Single"
@@ -121,10 +119,11 @@
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
                                 <StackLayout>
-                                    <buttons:SfRadioGroup Orientation="Horizontal" HeightRequest="80" SelectedValue="teacher" x:Name="UserTypeRadio" HorizontalOptions="Center">
-                                        <buttons:SfRadioButton Text="طالب" x:Name="STDR"/>
-                                        <buttons:SfRadioButton Text="معلم" x:Name="TR"/>
-                                    </buttons:SfRadioGroup>
+
+                                    <HorizontalStackLayout Spacing="20" HeightRequest="80" HorizontalOptions="Center">
+                                        <RadioButton Content="طالب" GroupName="UserTypeGroup" x:Name="STDR" IsChecked="True"/>
+                                        <RadioButton Content="معلم" GroupName="UserTypeGroup" x:Name="TR"  />
+                                    </HorizontalStackLayout>
                                     <entry:SfTextInputLayout Hint="رم" ContainerType="Filled" WidthRequest="300" HeightRequest="100" x:Name="IdTIL" >
                                         <Entry x:Name="IdEntry" />
                                     </entry:SfTextInputLayout>
@@ -152,14 +151,17 @@
                                             <Entry x:Name="ConfirmPasswordEntry" />
                                         </entry:SfTextInputLayout>
                                     </HorizontalStackLayout>
-                                    <buttons:SfSwitch x:Name="ActiveSwitch" IsVisible="False"/>
-                                    <buttons:SfButton Text="حذف الحساب" WidthRequest="100" HeightRequest="40" x:Name="DelAccBtn" Clicked="DelAccBtnClicked" />
+                                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" WidthRequest="100">
+                                    <Switch x:Name="ActiveSwitch" IsVisible="False" />
+                                        <Label Text=" mmm"/>
+                                    </HorizontalStackLayout>
+                                    <Button Text="حذف الحساب" WidthRequest="100" HeightRequest="40" x:Name="DelAccBtn" Clicked="DelAccBtnClicked" />
                                 </StackLayout>
                             </Border>
                             <HorizontalStackLayout Spacing="10" Grid.Row="2" HorizontalOptions="Center" Margin="10">
-                                <buttons:SfButton Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
-                                <buttons:SfButton Text="تعديل" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
-                                <buttons:SfButton Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
+                                <Button Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
+                                <Button Text="تعديل" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
+                                <Button Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
                             </HorizontalStackLayout>
                         </Grid>
                     </ScrollView>
@@ -179,8 +181,8 @@
                     <Label x:Name="SubNameLbl" HorizontalOptions="Center" FontSize="16"/>
                     <Label x:Name="TeacherNameLbl" HorizontalOptions="Center" FontSize="16"/>
                     <HorizontalStackLayout Spacing="10">
-                        <buttons:SfButton Clicked="DeleteSubClick" Text="حذف"/>
-                        <buttons:SfButton Clicked="CancelSubClick" Text="الغاء"/>
+                        <Button Clicked="DeleteSubClick" Text="حذف"/>
+                        <Button Clicked="CancelSubClick" Text="الغاء"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
                 
@@ -191,9 +193,9 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="25" />
             </Border.StrokeShape>
-            <buttons:SfButton Text="+" WidthRequest="50" HeightRequest="50" 
+            <Button Text="+" WidthRequest="50" HeightRequest="50" 
                                CornerRadius="25" 
-                               Background="#FF5722" 
+                               BackgroundColor="#FF5722" 
                                TextColor="White" 
                                Clicked="AddClicked" />
         </Border>
