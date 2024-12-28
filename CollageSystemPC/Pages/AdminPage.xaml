@@ -110,17 +110,19 @@
                                TextChanged="SearchBarEntryChanged"/>
                 </VerticalStackLayout>
             </Border>
-            <VerticalStackLayout HorizontalOptions="Center" Grid.Row="3" Margin="0,10">
                 <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
-               SelectionChanged="TeacherTableSelectionChanged"
-               SelectionMode="Single"
-               NavigationMode="Row"
-               ColumnWidthMode="Fill"
-               AutoGenerateColumnsMode="None"
-               DataFetchSize="30"
-               MaximumHeightRequest="1200"
-               EnableDataVirtualization="True"  
-               >
+                                     SelectionChanged="TeacherTableSelectionChanged"
+                                     SelectionMode="Single"
+                                     NavigationMode="Row"
+                                     ColumnWidthMode="Fill"
+                                     AutoGenerateColumnsMode="None"
+                                     DataFetchSize="30"
+                                     MaximumHeightRequest="1200"
+                                     EnableDataVirtualization="True"  
+                                     Grid.Row="3" 
+                                     VerticalOptions="FillAndExpand"
+                                     VerticalScrollBarVisibility="Always"
+                                     >
                     <datagrid:SfDataGrid.DefaultStyle>
                         <datagrid:DataGridStyle
                                         HeaderRowBackground="#1a1a1a"
@@ -151,14 +153,16 @@
 
                 </datagrid:SfDataGrid>
                 <datagrid:SfDataGrid x:Name="SubTableDataGrid"
-               SelectionChanged="SubTableSelectionChanged"
-               SelectionMode="Single"
-               NavigationMode="Row"
-               ColumnWidthMode="Fill"
-               AutoGenerateColumnsMode="None"
-               DataFetchSize="30"
-               EnableDataVirtualization="True" 
-               MaximumHeightRequest="1200"
+                                     SelectionChanged="SubTableSelectionChanged"
+                                     SelectionMode="Single"
+                                     NavigationMode="Row"
+                                     ColumnWidthMode="Fill"
+                                     AutoGenerateColumnsMode="None"
+                                     DataFetchSize="30"
+                                     EnableDataVirtualization="True" 
+                                     Grid.Row="3" 
+                                     VerticalOptions="FillAndExpand"
+                                     VerticalScrollBarVisibility="Always"
                >
                     <datagrid:SfDataGrid.DefaultStyle>
                         <datagrid:DataGridStyle
@@ -179,15 +183,17 @@
                     </datagrid:SfDataGrid.Columns>
                 </datagrid:SfDataGrid>
                 <datagrid:SfDataGrid x:Name="AdminTableDataGrid"
-               SelectionChanged="AdminTableSelectionChanged"
-               SelectionMode="Single"
-               NavigationMode="Row"
-               ColumnWidthMode="Fill"
-               AutoGenerateColumnsMode="None"
-               DataFetchSize="30"
-               MaximumHeightRequest="1200"
-               EnableDataVirtualization="True"  
-               >
+                                     SelectionChanged="AdminTableSelectionChanged"
+                                     SelectionMode="Single"
+                                     NavigationMode="Row"
+                                     ColumnWidthMode="Fill"
+                                     AutoGenerateColumnsMode="None"
+                                     DataFetchSize="30"
+                                     EnableDataVirtualization="True"
+                                     Grid.Row="3" 
+                                     VerticalOptions="FillAndExpand"
+                                     VerticalScrollBarVisibility="Always"
+                                     >
                     <datagrid:SfDataGrid.DefaultStyle>
                         <datagrid:DataGridStyle
                                         HeaderRowBackground="#1a1a1a"
@@ -217,7 +223,6 @@
                     </datagrid:SfDataGrid.Columns>
 
                 </datagrid:SfDataGrid>
-            </VerticalStackLayout>
         </Grid>
         <ContentView x:Name="AcountPopupWindow" IsVisible="False" BackgroundColor="#80000000">
             <Border Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
