@@ -2,87 +2,93 @@
 using CollageSystemPC.Methods;
 using SQLite;
 
-
 namespace CollageSystemPC
 {
     public partial class App : Application
     {
         public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
         public readonly SQLiteAsyncConnection _database;
-        public App(){
+
+        public App()
+        {
             InitializeComponent();
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzYyMjQ0N0AzMjM4MmUzMDJlMzBmUU9MTWVkem5xU2RxNUE0anZ5UVY1SHV4eWlrZWxEa1ZzMFdXKzFraENZPQ==");
+            _database = new SQLiteAsyncConnection(dbPath);
+
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzYzMTM0MEAzMjM4MmUzMDJlMzBIUEF2a3E1ZzlTN3I3VXJDOHRKNDd3NlIyd0crTTd0TTBibml6Unl6SFl3PQ==");
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new ManagementPage());
+            return new Window(new ContentPage());
         }
-    
 
-    protected override async void OnStart()
+        protected override async void OnStart()
         {
             var dbHelper = new DatabaseHelper(dbPath);
             await dbHelper.InitializeDatabaseAsync();
-            /*await InitializeApp();*/
+            await InitializeApp();
         }
-        /*private async Task InitializeApp()
+
+        private async Task InitializeApp()
         {
             try
             {
-
                 var session = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
 
                 if (session == null)
                 {
                     if (Application.Current?.Windows.Count > 0)
                     {
-                        Application.Current.Windows[0].Page = new NavigationPage(new StartPage());
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            Application.Current.Windows[0].Page = new NavigationPage(new Login());
+                        });
                     }
                     return;
                 }
 
-                var user = await _database.Table<UsersAccountTable>()
-                                           .FirstOrDefaultAsync(u => u.UserId == session.UserId && u.Password == session.Password);
+                var user = await _database.Table<AdminAccountTable>()
+                                           .FirstOrDefaultAsync(u => u.AdminId == session.UserId && u.Password == session.Password);
 
                 if (user == null)
                 {
                     if (Application.Current?.Windows.Count > 0)
                     {
-                        Application.Current.Windows[0].Page = new NavigationPage(new StartPage());
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            Application.Current.Windows[0].Page = new NavigationPage(new Login());
+                        });
                     }
                     return;
                 }
-                UserSession.UserId = user.UserId;
-                UserSession.Name = user.Name;
-                UserSession.UserType = user.UserType;
+
+                UserSession.UserId = user.AdminId;
+                UserSession.AdminType = user.AdminType;
                 UserSession.Password = user.Password;
+                UserSession.SessionYesNo = true;
 
-                if (UserSession.UserType == 2)
+                if (Application.Current?.Windows.Count > 0)
                 {
-                    if (Application.Current?.Windows.Count > 0)
+                    MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        Application.Current.Windows[0].Page = new NavigationPage(new TeacherAppShell());
-                    }
+                        Application.Current.Windows[0].Page = new NavigationPage(new ManagementPage());
+                    });
                 }
-                else
-                {
-                    if (Application.Current?.Windows.Count > 0)
-                    {
-                        Application.Current.Windows[0].Page = new NavigationPage(new StudentShell());
-                    }
-                }
-
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., logging)
+                Console.WriteLine($"Error during app initialization: {ex.Message}");
                 if (Application.Current?.Windows.Count > 0)
                 {
-                    Application.Current.Windows[0].Page = new NavigationPage(new ContentPage { Content = new Label { Text = $"Error: {ex.Message}" } });
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        Application.Current.Windows[0].Page = new ContentPage
+                        {
+                            Content = new Label { Text = $"Error: {ex.Message}" }
+                        };
+                    });
                 }
-                *//*MainPage = new ContentPage { Content = new Label { Text = $"Error: {ex.Message}" } };*//*
             }
-        }*/
-    } 
+        }
+    }
 }

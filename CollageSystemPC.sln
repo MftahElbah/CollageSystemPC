@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CollageSystemPC", "CollageSystemPC\CollageSystemPC.csproj", "{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}"
 EndProject
@@ -13,6 +13,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9FF35E8-81FF-48D8-9EA3-C2A36D5A6F64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

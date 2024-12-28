@@ -21,87 +21,14 @@ namespace CollageSystemPC.Methods
 
         public async Task InitializeDatabaseAsync()
         {
-            await _database.CreateTableAsync<AdminAccountTable>();
-            await _database.CreateTableAsync<UsersAccountTable>();
-            await _database.CreateTableAsync<SubTable>();
             await _database.CreateTableAsync<UserSessionTable>();
+            await _database.CreateTableAsync<UsersAccountTable>();
+            await _database.CreateTableAsync<AdminAccountTable>();
+            await _database.CreateTableAsync<SubTable>();
 
             await SeedDatabase(); // Calls the method to seed the database with initial data if needed.
 
         }
-
-        public async Task<List<SubViewModel>> GetSubViewModelsAsync()
-        {
-            try
-            {
-                string query = @"
-                SELECT 
-                    s.SubId, 
-                    s.SubName, 
-                    u.Name AS SubTeacher
-                    FROM SubTable s
-                    INNER JOIN UsersAccountTable u ON s.UserId = u.UserId";
-
-                return await _database.QueryAsync<SubViewModel>(query);
-            }
-            catch (SQLiteException ex)
-            {
-                Console.WriteLine($"SQLiteException: {ex.Message}");
-                return new List<SubViewModel>(); // Return an empty list on error.
-            }
-        }
-
-
-        public async Task<List<StdViewModel>> GetStdTableViewAsync()
-        {
-            try
-            {
-                // Correct SQL query to join SubTable with UsersAccountTable
-                string query = @"
-            SELECT 
-                UserId AS StdId, 
-                Name AS StdName, 
-                Username AS StdUsername, 
-                IsActive 
-            FROM UsersAccountTable 
-            WHERE UserType = 2";
-
-                return await _database.QueryAsync<StdViewModel>(query);
-            }
-            catch (SQLiteException ex)
-            {
-                Console.WriteLine($"SQLiteException: {ex.Message}");
-                return new List<StdViewModel>(); // Return an empty list on error.
-            }
-        }
-        public async Task<List<TeacherViewModel>> GetTeacherTableViewAsync()
-        {
-            try
-            {
-                // Correct SQL query to join SubTable with UsersAccountTable
-                string query = @"
-            SELECT 
-                UserId AS TeacherId, 
-                Name AS TeacherName, 
-                Username AS TeacherUsername, 
-                IsActive 
-            FROM UsersAccountTable 
-            WHERE UserType = 1";
-
-                return await _database.QueryAsync<TeacherViewModel>(query);
-            }
-            catch (SQLiteException ex)
-            {
-                Console.WriteLine($"SQLiteException: {ex.Message}");
-                return new List<TeacherViewModel>(); // Return an empty list on error.
-            }
-        }
-
-        public async Task InitializeAsync()
-        {
-            await SeedDatabase(); // Calls the SeedDatabase method to populate initial data asynchronously.
-        }
-
         private async Task SeedDatabase()
         {
             var teacher = await _database.Table<UsersAccountTable>().ToListAsync();
@@ -224,9 +151,18 @@ namespace CollageSystemPC.Methods
             {
                 var initialSub = new List<SubTable>
                 {
-                    new SubTable {ShowDeg=true,SubId=1,SubName="KKK",UserId=111111002},
-                    new SubTable {ShowDeg=true,SubId=2,SubName="LLL",UserId=111111000},
-                    new SubTable {ShowDeg=true,SubId=3,SubName="MMM",UserId=111111004},
+                    new SubTable {ShowDeg=true,SubId=1,SubName="KKK",UserId=111111002 , SubTeacherName = "kkk"},
+                    new SubTable {ShowDeg=true,SubId=2,SubName="LLL",UserId=111111000 , SubTeacherName = "kkk"},
+                    new SubTable {ShowDeg=true,SubId=3,SubName="MMM",UserId=111111004 , SubTeacherName = "kkk"},
+                };
+                await _database.InsertAllAsync(initialSub); // Inserts the initial Teacher Account into the database.
+            }
+            var admin = await _database.Table<AdminAccountTable>().ToListAsync();
+            if (sub.Count == 0)
+            {
+                var initialSub = new List<AdminAccountTable>
+                {
+                    new AdminAccountTable {AdminId=000 , AdminType = true , Name = "master" , Username = "master" , Password = "123"},
                 };
                 await _database.InsertAllAsync(initialSub); // Inserts the initial Teacher Account into the database.
             }

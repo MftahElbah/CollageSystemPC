@@ -2,202 +2,321 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:datagrid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
-             xmlns:stepProgressBar="clr-namespace:Syncfusion.Maui.ProgressBar;assembly=Syncfusion.Maui.ProgressBar"
-             xmlns:entry="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
              x:Class="CollageSystemPC.Pages.ManagementPage"
-             BackgroundColor="#E4E4E4"
-             FlowDirection="RightToLeft"
-             >
+             BackgroundColor="#efefef"
+             FlowDirection="RightToLeft">
     <Grid>
-        
-        <VerticalStackLayout HorizontalOptions="Center">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <Border BackgroundColor="#DCDCDC" HorizontalOptions="Center"  Margin="10" Padding="10">
-                <Border.StrokeShape >
+            <!--Navigation Bar-->
+            <VerticalStackLayout Spacing="10" Margin="10" Grid.Row="0">
+            <FlexLayout Direction="Row" JustifyContent="SpaceBetween" Padding="20">
+                <!--Right Btns-->
+                <HorizontalStackLayout Spacing="10">
+                    <Button x:Name="AddBtn"
+                        CornerRadius="20" 
+                        FontFamily="CairoB"
+                        TextColor="#1a1a1a"
+                        FontSize="14"
+                        Text="إضافة"
+                        Padding="15"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        BackgroundColor="#D3B05F"
+                        Clicked="AddClicked"
+                        IsVisible="True"/>
+                    <Button x:Name="AdminPageBtn"
+                        CornerRadius="20" 
+                        FontFamily="CairoB"
+                        TextColor="#1a1a1a"
+                        FontSize="14"
+                        Text="المسؤول"
+                        Padding="15"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Center"
+                        BackgroundColor="#D3B05F"
+                        Clicked="AdminPageBtnClicked"
+                        IsVisible="True"/>
+
+                    </HorizontalStackLayout>
+
+                <!--Logout Btns-->
+                <Button CornerRadius="20" 
+                FontFamily="CairoB"
+                TextColor="#efefef"
+                Text="خروج"
+                FontSize="14"
+                Padding="15"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" 
+                BackgroundColor="#1a1a1a"
+                Clicked="LogoutClicked">
+                </Button>
+            </FlexLayout>
+               
+            <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="250" BackgroundColor="#D9D9D9">
+                <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
-                <HorizontalStackLayout>
-                    <Button Text="الطلبة" CornerRadius="20" WidthRequest="100" HeightRequest="40" x:Name="STDTableShower" Clicked="STDTableClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" FlowDirection="RightToLeft"/>
-                    <Button Text="الاساتذة" CornerRadius="20" WidthRequest="100" HeightRequest="40" x:Name="TeachersTableShower" Clicked="TeachersTableShowerClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" />
-                    <Button Text="المواد" CornerRadius="20" WidthRequest="70" HeightRequest="40" x:Name="SubTableShower" Clicked="SubTableShowerClicked" BackgroundColor="Transparent" TextColor="#1a1a1a" />
-                </HorizontalStackLayout>
-            </Border>
-            <entry:SfTextInputLayout x:Name="SearchBarTIL" WidthRequest="200" Hint="بحث" IsHintAlwaysFloated="True">
-                <Entry x:Name="SearchBarEntry" TextChanged="SearchBarEntryChanged" TextColor="#1a1a1a" IsTextPredictionEnabled="False" IsSpellCheckEnabled="False"/>
-            </entry:SfTextInputLayout>
-            <Button Text="تعطيل الطلبة" WidthRequest="150" HeightRequest="40" x:Name="DeActiveStd" Clicked="DeActiveStdClicked" BackgroundColor="#1a1a1a" TextColor="#E4E4E4" CornerRadius="20"/>
-            <datagrid:SfDataGrid x:Name="StdTableDataGrid"
-                       ItemsSource="{Binding StdTableSetter}"
-                       SelectionMode="Single"
-                       NavigationMode="Row"
-                       SelectionChanged="StdTableSelectionChanged"
-                       ColumnWidthMode="Fill"
-                       AutoGenerateColumnsMode="None"
-                       DataFetchSize="30"
-                       EnableDataVirtualization="True"                            
-                       >
-                <datagrid:SfDataGrid.Columns >
-                <datagrid:DataGridTextColumn HeaderText="رم" MappingName="StdId" LoadUIView="False"/>
-                <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="StdName" LoadUIView="False"/>
-                <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="StdUsername" LoadUIView="False" />
-                <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
-                </datagrid:SfDataGrid.Columns>
-            </datagrid:SfDataGrid>
-            
-            <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
-                       ItemsSource="{Binding TeacherTableSetter}"
-                       SelectionChanged="TeacherTableSelectionChanged"
-                       SelectionMode="Single"
-                       NavigationMode="Row"
-                       ColumnWidthMode="Fill"
-                       AutoGenerateColumnsMode="None"
-                       DataFetchSize="30"
-                       EnableDataVirtualization="True"  
-                       >
-                <datagrid:SfDataGrid.Columns >
-                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="TeacherId" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="TeacherName" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="TeacherUsername" LoadUIView="False" />
-                <datagrid:DataGridTextColumn HeaderText="مفعل؟" MappingName="IsActive" LoadUIView="False"/>
-                </datagrid:SfDataGrid.Columns>
-            </datagrid:SfDataGrid>
-            
-            <datagrid:SfDataGrid x:Name="SubTableDataGrid"
-                       ItemsSource="{Binding SubSetter}"
-                       SelectionChanged="SubTableSelectionChanged"
-                       SelectionMode="Single"
-                       NavigationMode="Row"
-                       ColumnWidthMode="Fill"
-                       AutoGenerateColumnsMode="None"
-                       DataFetchSize="30"
-                       EnableDataVirtualization="True" 
-                       >
-                <datagrid:SfDataGrid.Columns>
-                    <datagrid:DataGridTextColumn HeaderText="رم" MappingName="SubId" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم المادة" MappingName="SubName" LoadUIView="False"/>
-                    <datagrid:DataGridTextColumn HeaderText="اسم الاستاذ" MappingName="SubTeacher" LoadUIView="False" />
                 
-                </datagrid:SfDataGrid.Columns>
-            </datagrid:SfDataGrid>
-        </VerticalStackLayout>
+                <VerticalStackLayout>
+                    <!-- Entry -->
+                    <Entry x:Name="SearchBarEntry"
+                            Placeholder="بحث بأسم طالب"
+                            FontFamily="CairoB" 
+                            FontSize="14" 
+                            TextColor="#1a1a1a"
+                            BackgroundColor="Transparent"
+                            PlaceholderColor="#959595"
+                            Keyboard="Text"
+                            IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                            TextChanged="SearchBarEntryChanged"/>
+                 </VerticalStackLayout>
+            </Border>
+            
+            <Button Text="تعطيل الطلبة" HorizontalOptions="Center" VerticalOptions="Center" Padding="30,20" x:Name="DeActiveStd" Clicked="DeActiveStdClicked" BackgroundColor="#1a1a1a" TextColor="#efefef" CornerRadius="20" FontFamily="CairoB"/>
+            </VerticalStackLayout>
+
+                <!--Main-->
+            <VerticalStackLayout HorizontalOptions="Center" Grid.Row="1" Margin="0,10">
+                <datagrid:SfDataGrid x:Name="StdTableDataGrid"
+                                     SelectionMode="Single"
+                                     NavigationMode="Row"
+                                     SelectionChanged="StdTableSelectionChanged"
+                                     ColumnWidthMode="Fill"
+                                     AutoGenerateColumnsMode="None"
+                                     DataFetchSize="30"
+                                     EnableDataVirtualization="True"   
+                                     MaximumHeightRequest="1200">
+                    <datagrid:SfDataGrid.DefaultStyle>
+                        <datagrid:DataGridStyle
+                            HeaderRowBackground="#1a1a1a"
+                            HeaderRowTextColor="#D9D9D9"
+                            RowBackground="#D9D9D9"
+                            RowFontFamily="#Cairo"
+                            RowTextColor="#1a1a1a"
+                            HeaderRowFontFamily="CairoB"/>
+                    </datagrid:SfDataGrid.DefaultStyle>
+                    <datagrid:SfDataGrid.Columns>
+                        <datagrid:DataGridTextColumn HeaderText="رم" MappingName="UserId" LoadUIView="False"/>
+                        <datagrid:DataGridTextColumn HeaderText="اسم" MappingName="Name" LoadUIView="False"/>
+                        <datagrid:DataGridTextColumn HeaderText="اسم المستخدم" MappingName="Username" LoadUIView="False" />
+                        <!-- Other columns -->
+                        <datagrid:DataGridTemplateColumn HeaderText="مفعل؟" MappingName="IsActive">
+                            <datagrid:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsEnabled="False"
+                                              HorizontalOptions="Center"
+                                              IsChecked="{Binding IsActive}" />
+                                </DataTemplate>
+                            </datagrid:DataGridTemplateColumn.CellTemplate>
+                        </datagrid:DataGridTemplateColumn>
+                    </datagrid:SfDataGrid.Columns>
+                </datagrid:SfDataGrid>
+            </VerticalStackLayout>
+        </Grid>
         
-        <ContentView x:Name="StdPopupWindow" IsVisible="False" BackgroundColor="#80000000">
-            <Border Padding="20" BackgroundColor="#ffffff" HeightRequest="500" WidthRequest="600">
+        <!--Add Std Popup-->
+        <ContentView x:Name="AcountPopupWindow" IsVisible="False" BackgroundColor="#80000000">
+            <Border Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
 
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
+
+                <Border.Shadow>
+                    <Shadow Brush="#1a1a1a" Opacity="0.5" Radius="05" Offset="0,10" />
+                </Border.Shadow>
 
                 <Grid>
                     <!-- Define two rows: one for the fixed header and one for the scrollable content -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <!-- Fixed height for the Label -->
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                         <!-- Remaining space for ScrollView -->
                     </Grid.RowDefinitions>
 
                     <!-- Fixed Header (Row 0) -->
-                    <Label Grid.Row="0" 
-                   Text="إضافة حساب" 
-                   x:Name="TitleLbl" 
-                   FontSize="Title" 
-                   HorizontalOptions="Center" 
-                   VerticalOptions="Center"
-                   FontFamily="Cairo" />
+                    <FlexLayout Grid.Row="0" HorizontalOptions="Center" VerticalOptions="Center" JustifyContent="SpaceBetween" >
+
+                        <Button IsEnabled="True" Text="حفظ" VerticalOptions="Center" HorizontalOptions="Start"  x:Name="SaveBtn" Clicked="SaveBtnClicked" FontFamily="CairoB" BackgroundColor="#D3B05F" TextColor="#1a1a1a" Grid.Row="0"/>
+                        <Button Text="تعديل" VerticalOptions="Center" HorizontalOptions="Start"  x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False" FontFamily="CairoB" BackgroundColor="#D3B05F" TextColor="#1a1a1a" Grid.Row="0"/>
+                        <Label Text="إضافة حساب" x:Name="TitleLbl" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center" FontFamily="CairoB" />
+                        <Button Text="إلغاء" VerticalOptions="Center" HorizontalOptions="End"  x:Name="BackBtn" Clicked="BackBtnClicked" FontFamily="CairoB" BackgroundColor="#1a1a1a" TextColor="#efefef" Grid.Row="0"/>
+                    </FlexLayout>
 
                     <!-- Scrollable Content (Row 1) -->
-                    <ScrollView Grid.Row="1">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10" Grid.Row="1">
+                        <Border VerticalOptions="Center" HorizontalOptions="Center" Padding="20" Stroke="#959595" StrokeThickness="3">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <StackLayout Spacing="10">
+
+                            <!-- IdEntry -->
+                            <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="250" BackgroundColor="#D9D9D9" Grid.Row="2">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="20"/>
+                                <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
-                                <StackLayout>
+                                    
+                                <VerticalStackLayout>
+                                        <Entry x:Name="IdEntry"
+                                           FontFamily="CairoB" 
+                                           FontSize="14" 
+                                           TextColor="#1a1a1a"
+                                           BackgroundColor="Transparent"
+                                           Keyboard="Text"
+                                           Placeholder="رم"
+                                           PlaceholderColor="#959595"
+                                           IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                           TextChanged="SearchBarEntryChanged"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            <!-- NameEntry -->
+                            <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="250" BackgroundColor="#D9D9D9" Grid.Row="2">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout>
+                                        <!-- Entry -->
+                                        <Entry x:Name="NameEntry"
+                                           FontFamily="CairoB" 
+                                           FontSize="14" 
+                                           TextColor="#1a1a1a"
+                                           BackgroundColor="Transparent"
+                                           Keyboard="Text"
+                                           Placeholder="اسم"
+                                           PlaceholderColor="#959595"
+                                           IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                           TextChanged="SearchBarEntryChanged"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            
+                            </StackLayout>
+                        </Border>
 
-                                    <HorizontalStackLayout Spacing="20" HeightRequest="80" HorizontalOptions="Center">
-                                        <RadioButton Content="طالب" GroupName="UserTypeGroup" x:Name="STDR" IsChecked="True"/>
-                                        <RadioButton Content="معلم" GroupName="UserTypeGroup" x:Name="TR"  />
-                                    </HorizontalStackLayout>
-                                    <entry:SfTextInputLayout Hint="رم" ContainerType="Filled" WidthRequest="300" HeightRequest="100" x:Name="IdTIL" >
-                                        <Entry x:Name="IdEntry" />
-                                    </entry:SfTextInputLayout>
-                                    <entry:SfTextInputLayout Hint="اسم" ContainerType="Filled" IsHintAlwaysFloated="True" WidthRequest="200" HeightRequest="100" x:Name="FNTIL">
-                                        <Entry x:Name="NameEntry" />
-                                    </entry:SfTextInputLayout>
-                                </StackLayout>
-                            </Border>
-                            <Border Grid.Row="1" HorizontalOptions="Center" Margin="10" Padding="40,10" Stroke="Black" StrokeThickness="1">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="20"/>
-                                </Border.StrokeShape>
-                                <StackLayout>
+                        <Border HorizontalOptions="Center" VerticalOptions="Center" Padding="20" Stroke="#959595" StrokeThickness="3">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <StackLayout Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
 
-                                    <entry:SfTextInputLayout Hint="اسم المستخدم" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="UNTIL">
-                                        <Entry x:Name="UsernameEntry" />
-                                    </entry:SfTextInputLayout>
+                                <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="250" BackgroundColor="#D9D9D9" Grid.Row="2">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout >
+                                        <!-- Entry -->
+                                        <Entry x:Name="UsernameEntry"
+                                           FontFamily="CairoB" 
+                                           FontSize="14" 
+                                           TextColor="#1a1a1a"
+                                           BackgroundColor="Transparent"
+                                           Keyboard="Text"
+                                           Placeholder="اسم المستخدم"
+                                           PlaceholderColor="#959595"
+                                           IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                           />
+                                    </VerticalStackLayout>
+                                </Border>
 
-                                    <HorizontalStackLayout Spacing="10">
-                                        <entry:SfTextInputLayout Hint="كلمة السر" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="PTIL" EnablePasswordVisibilityToggle="True">
-                                            <Entry x:Name="PasswordEntry" />
-                                        </entry:SfTextInputLayout>
+                                <HorizontalStackLayout Spacing="10">
+                                    <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="200" BackgroundColor="#D9D9D9" Grid.Row="2">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="20"/>
+                                        </Border.StrokeShape>
+                                        <VerticalStackLayout>
+                                            <!-- Entry -->
+                                            <Entry x:Name="PasswordEntry"
+                                           FontFamily="CairoB" 
+                                           FontSize="14" 
+                                           TextColor="#1a1a1a"
+                                           BackgroundColor="Transparent"
+                                           Placeholder="كلمة السر"
+                                           PlaceholderColor="#959595"
+                                               Keyboard="Password"
+                                           IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                           />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                    <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="200" BackgroundColor="#D9D9D9" Grid.Row="2">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="20"/>
+                                        </Border.StrokeShape>
+                                        <VerticalStackLayout>
+                                            <!-- Entry -->
+                                            <Entry x:Name="ConfirmPasswordEntry"
+                                           FontFamily="CairoB" 
+                                           FontSize="14" 
+                                           TextColor="#1a1a1a"
+                                           BackgroundColor="Transparent"
+                                           Placeholder="تأكيد كلمة السر"
+                                           PlaceholderColor="#959595"
+                                               Keyboard="Password"
+                                           IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                           />
+                                        </VerticalStackLayout>
+                                    </Border>
 
-                                        <entry:SfTextInputLayout Hint="تأكيد كلمة السر" ContainerType="Filled" WidthRequest="200" IsHintAlwaysFloated="True" HeightRequest="100" x:Name="CPTIL" EnablePasswordVisibilityToggle="True">
-                                            <Entry x:Name="ConfirmPasswordEntry" />
-                                        </entry:SfTextInputLayout>
-                                    </HorizontalStackLayout>
-                                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10" WidthRequest="100">
-                                    <Switch x:Name="ActiveSwitch" IsVisible="False" />
-                                        <Label Text=" mmm"/>
-                                    </HorizontalStackLayout>
-                                    <Button Text="حذف الحساب" WidthRequest="100" HeightRequest="40" x:Name="DelAccBtn" Clicked="DelAccBtnClicked" />
-                                </StackLayout>
-                            </Border>
-                            <HorizontalStackLayout Spacing="10" Grid.Row="2" HorizontalOptions="Center" Margin="10">
-                                <Button Text="حفظ" WidthRequest="100" HeightRequest="40" x:Name="SaveBtn" Clicked="SaveBtnClicked" />
-                                <Button Text="تعديل" WidthRequest="100" HeightRequest="40" x:Name="UpdateBtn" Clicked="UpdateBtnClicked" IsVisible="False"/>
-                                <Button Text="إلغاء" WidthRequest="100" HeightRequest="40" x:Name="BackBtn" Clicked="BackBtnClicked" />
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </ScrollView>
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="0">
+                                    <Label Text="تفعيل الحساب" HorizontalOptions="Center" VerticalOptions="Center" FontFamily="Cairo" FontSize="16" IsVisible="False" x:Name="albl"/>
+                                    <Switch x:Name="ActiveSwitch" IsVisible="False" OnColor="#D3B05F" ThumbColor="#1a1a1a"/>
+                                    <Button Text="حذف الحساب" VerticalOptions="Center" HorizontalOptions="Center" BackgroundColor="#F02C2C" TextColor="#efefef" FontFamily="CairoB" x:Name="DelAccBtn" Clicked="DelAccBtnClicked" />
+                                </HorizontalStackLayout>
+                            </StackLayout>
+                        </Border>
+                    </VerticalStackLayout>
                 </Grid>
             </Border>
         </ContentView>
+        <!-- Popups -->
+        <ContentView x:Name="SaveSession" IsVisible="False" BackgroundColor="#80000000">
 
-        <ContentView x:Name="SubPopupWindow" IsVisible="False" BackgroundColor="#80000000">
-            <Border Padding="20" BackgroundColor="#ffffff" HeightRequest="200" WidthRequest="250">
-
+            <Border Padding="20" BackgroundColor="#EFEFEF" VerticalOptions="Center" HorizontalOptions="Center" >
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
                 </Border.StrokeShape>
 
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="10" VerticalOptions="Center">
-                    <Label Text="المادة" FontSize="Title" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <Label x:Name="SubNameLbl" HorizontalOptions="Center" FontSize="16"/>
-                    <Label x:Name="TeacherNameLbl" HorizontalOptions="Center" FontSize="16"/>
-                    <HorizontalStackLayout Spacing="10">
-                        <Button Clicked="DeleteSubClick" Text="حذف"/>
-                        <Button Clicked="CancelSubClick" Text="الغاء"/>
+                <Border.Shadow>
+                    <Shadow Brush="#1a1a1a"
+                            Opacity="0.5"
+                            Radius="05"
+                            Offset="0,10" />
+                </Border.Shadow>
+                <FlexLayout JustifyContent="SpaceAround" Direction="Column" AlignContent="Center" AlignItems="Center" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="هل تريد الاحتفاظ بالجلسة ؟" FontSize="Title" FontFamily="CairoB" TextColor="#1a1a1a" VerticalOptions="Center" HorizontalOptions="Center" />
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Button Text="نعم" 
+                            Clicked="SaveSessionClicked" 
+                                VerticalOptions="Center"
+                                TextColor="#1a1a1a"
+                                BackgroundColor="#D3B05F"
+                                FontFamily="CairoB"
+                                FontSize="16"
+                                CornerRadius="20"
+                                Padding="20,10"
+                            />
+                        <Button Text="لا" 
+                            Clicked="CancelSessionClicked" 
+                            VerticalOptions="Center"
+                            TextColor="#EFEFEF"
+                            BackgroundColor="#1a1a1a"
+                            FontFamily="CairoB"
+                            FontSize="16"
+                            CornerRadius="20"
+                            Padding="20,10"
+                                />
                     </HorizontalStackLayout>
-                </VerticalStackLayout>
-                
+
+                </FlexLayout>
             </Border>
         </ContentView>
-
-        <Border HorizontalOptions="End" VerticalOptions="End" Margin="20">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="25" />
-            </Border.StrokeShape>
-            <Button Text="+" WidthRequest="50" HeightRequest="50" 
-                               CornerRadius="25" 
-                               BackgroundColor="#FF5722" 
-                               TextColor="White" 
-                               Clicked="AddClicked" />
-        </Border>
     </Grid>
+    
 </ContentPage>
