@@ -1,5 +1,5 @@
 ﻿using CollageSystemPC.Methods;
-using SQLite;
+using CollageSystemPC.Methods.actions;
 using System.Collections.ObjectModel;
 using TP.Methods;
 namespace CollageSystemPC.Pages;
@@ -17,18 +17,16 @@ public partial class ManagementPage : ContentPage
         }
     }
 
-    public readonly SQLiteAsyncConnection _database;
-    public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
+    private MineSQLite _sqlite = new MineSQLite();
+
     
     public ManagementPage()
 	{
         InitializeComponent();
         NavigationPage.SetHasNavigationBar(this, false); // Disable navigation bar for this page
 
-        _database = new SQLiteAsyncConnection(dbPath);
         StdTableGetter = new ObservableCollection<UsersAccountTable>();
         AdminPageBtn.IsVisible = UserSession.AdminType;
-
         HideContentViewMethod.HideContentView(SaveSession);
         HideContentViewMethod.HideContentView(AcountPopupWindow);
 
@@ -38,7 +36,6 @@ public partial class ManagementPage : ContentPage
         await LoadStd();
         await Task.Delay(1000);
         CheckSession();
-
     }
     private void CheckSession()
     {
@@ -53,37 +50,26 @@ public partial class ManagementPage : ContentPage
     }
     private async void SaveSessionClicked(object sender, EventArgs e)
     {
-        try
-        {
+        
             var session = new UserSessionTable
             {
                 UserId = UserSession.UserId,
                 Password = UserSession.Password,
             };
-            await _database.InsertAsync(session);
-            SaveSession.IsVisible = false;
-        }
-        catch (Exception ex)
-        {
-            // Log or display the error
-            await DisplayAlert("error",$"Error saving session: {ex.Message}","yes");
-        }
+            await _sqlite.insertSession(session);
+        SaveSession.IsVisible = false;
+        
     }
-
     private void CancelSessionClicked(object sender, EventArgs e)
     {
         SaveSession.IsVisible = false;
     }
     private async Task LoadStd()
     {
-        var std = await _database.Table<UsersAccountTable>().Where(s => s.UserType == 2).ToListAsync();
-
-        // Clear existing data and repopulate StdTableSetter
+        //var std = await _database.Table<UsersAccountTable>().Where(s => s.UserType == 2).ToListAsync();
+        var StdData = await _sqlite.GetUserData(2);
         StdTableSetter.Clear();
-        foreach (var student in std)
-        {
-            StdTableSetter.Add(student);
-        }
+        StdTableSetter = new ObservableCollection<UsersAccountTable>(StdData);
 
         // Set initial ItemsSource to StdTableSetter
         StdTableDataGrid.ItemsSource = StdTableSetter;
@@ -118,19 +104,11 @@ public partial class ManagementPage : ContentPage
             return;
         }
 
-            var filteredStudents = await _database.Table<UsersAccountTable>()
-            .Where(s => s.Name.Contains(SearchBarEntry.Text.ToLower()))
-            .ToListAsync();
-
-            StdTableSetter.Clear();
-            // Clear and populate StdTableSetter with filtered results
-            foreach (var student in filteredStudents)
-            {
-                StdTableSetter.Add(student);
-            }
-
-            // Switch DataGrid ItemsSource to StdTableSetter
-            StdTableDataGrid.ItemsSource = StdTableSetter;
+        var SearchedStdData = await _sqlite.GetUserDataByName(SearchBarEntry.Text.ToLower() , 2);
+        StdTableSetter.Clear();
+        StdTableSetter = new ObservableCollection<UsersAccountTable>(SearchedStdData);
+        // Switch DataGrid ItemsSource to StdTableSetter
+        StdTableDataGrid.ItemsSource = StdTableSetter;
         
     }
 
@@ -184,8 +162,8 @@ public partial class ManagementPage : ContentPage
         int id = int.Parse(IdEntry.Text);
 
         // Check if the UserId already exists
-        var existingUser = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == id);
-        if (existingUser != null)
+        var existingId = await _sqlite.CheckIfIdExist(id);
+        if (existingId != null)
         {
             await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
             return;
@@ -193,8 +171,8 @@ public partial class ManagementPage : ContentPage
 
         // Check if the Username already exists
         string us = UsernameEntry.Text.ToLower();
-        var username = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.Username == us);
-        if (username != null)
+        var existingUsername = await _sqlite.CheckIfUsernameExist(us);
+        if (existingUsername != null)
         {
             await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
             return;
@@ -213,16 +191,7 @@ public partial class ManagementPage : ContentPage
         }
 
         // Create a new user and insert it into the database
-        var newUser = new UsersAccountTable
-        {
-            UserId = id,
-            Name = NameEntry.Text,
-            Username = us,
-            Password = PasswordEntry.Text,
-            UserType = 2,
-            IsActive = true,
-        };
-        await _database.InsertAsync(newUser);
+        await _sqlite.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text,2);
 
         await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
@@ -233,65 +202,42 @@ public partial class ManagementPage : ContentPage
     }
     private async void UpdateBtnClicked(object sender, EventArgs e)
     {
-        int id = int.Parse(IdEntry.Text);
-        var user = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == id);
-
-        if (user != null)
+        // Check if Name or Username fields are empty
+        if (string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text))
         {
-            // Check if Name or Username fields are empty
-            if (string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text))
+            await DisplayAlert("خطاء", "يجب الا يكون حقل الاسم و اسم المستخدم فارغين", "حسنا");
+            return;
+        }
+        if (!string.IsNullOrEmpty(PasswordEntry.Text))
+        {
+            if (PasswordEntry.Text.Length < 8)
             {
-                await DisplayAlert("خطاء", "يجب الا يكون حقل الاسم و اسم المستخدم فارغين", "حسنا");
+                await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
                 return;
             }
 
-            // Update UserType based on radio button selection
-            user.Name = NameEntry.Text;
-            user.Username = UsernameEntry.Text;
-            user.IsActive = ActiveSwitch.IsToggled;
-
-            // Handle password updates if provided
-            if (!string.IsNullOrEmpty(PasswordEntry.Text))
+            if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
             {
-                if (PasswordEntry.Text.Length < 8)
-                {
-                    await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
-                    return;
-                }
-
-                if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
-                {
-                    await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
-                    return;
-                }
-
-                user.Password = PasswordEntry.Text;
+                await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+                return;
             }
 
-            // Update the database with the new user information
-            await _database.UpdateAsync(user);
-            await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
+        }
+        await _sqlite.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 2, ActiveSwitch.IsToggled);
+        await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
             // Clear input fields and reload data
             ClearEntrys();
             await LoadStd();
             AcountPopupWindow.IsVisible = false;
-        }
-        else
-        {
-            await DisplayAlert("خطاء", "لم يتم العثور على المستخدم", "حسنا");
-        }
+
     }
     private async void DeActiveStdClicked(object sender, EventArgs e) {
         bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من تعطيل حسابات جميع الطلبة؟", "نعم", "لا");
         if (!conf)
         { return; }
-        var stdda = await _database.Table<UsersAccountTable>().Where(s => s.UserType == 2).ToListAsync();
-        foreach(var std in stdda)
-        {
-            std.IsActive = false;
-        }
-            await _database.UpdateAllAsync(stdda);
+        
+        await _sqlite.DeActiveAllSTD();
         await DisplayAlert("تعطيل", "تم العملية بنجاح", "حسنا");
         await LoadStd();
 
@@ -300,13 +246,12 @@ public partial class ManagementPage : ContentPage
         bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
         if (!conf)
         { return; }
-        
-        int uid = int.Parse(IdEntry.Text);
-        var user = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == uid);
-        await _database.DeleteAsync(user);
+
+        await _sqlite.DeleteUser(int.Parse(IdEntry.Text));
         
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
+        ClearEntrys();
         await LoadStd();
     }
     

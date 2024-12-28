@@ -1,6 +1,7 @@
 ﻿using CollageSystemPC.Pages;
 using CollageSystemPC.Methods;
 using SQLite;
+using CollageSystemPC.Methods.actions;
 
 namespace CollageSystemPC
 {
@@ -8,6 +9,8 @@ namespace CollageSystemPC
     {
         public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
         public readonly SQLiteAsyncConnection _database;
+        private MineSQLite _sqlite = new MineSQLite();
+
 
         public App()
         {
@@ -33,7 +36,10 @@ namespace CollageSystemPC
         {
             try
             {
-                var session = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
+
+                //var session = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
+                var session = await _sqlite.UserSessionChecker();
+
 
                 if (session == null)
                 {
@@ -47,24 +53,10 @@ namespace CollageSystemPC
                     return;
                 }
 
-                var user = await _database.Table<AdminAccountTable>()
-                                           .FirstOrDefaultAsync(u => u.AdminId == session.UserId && u.Password == session.Password);
 
-                if (user == null)
-                {
-                    if (Application.Current?.Windows.Count > 0)
-                    {
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            Application.Current.Windows[0].Page = new NavigationPage(new Login());
-                        });
-                    }
-                    return;
-                }
-
-                UserSession.UserId = user.AdminId;
-                UserSession.AdminType = user.AdminType;
-                UserSession.Password = user.Password;
+                UserSession.UserId = session.AdminId;
+                UserSession.AdminType = session.AdminType;
+                UserSession.Password = session.Password;
                 UserSession.SessionYesNo = true;
 
                 if (Application.Current?.Windows.Count > 0)
