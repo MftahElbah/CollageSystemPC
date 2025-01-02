@@ -162,7 +162,7 @@ namespace CollageSystemPC.Methods
             {
                 var initialSub = new List<AdminAccountTable>
                 {
-                    new AdminAccountTable {AdminId=000 , AdminType = true , Name = "master" , Username = "master" , Password = "123"},
+                    new AdminAccountTable {AdminId=000 , AdminType = true , Name = "a" , Username = "a" , Password = "a"},
                 };
                 await _database.InsertAllAsync(initialSub); // Inserts the initial Teacher Account into the database.
             }

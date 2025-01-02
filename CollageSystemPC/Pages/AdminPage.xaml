@@ -23,7 +23,7 @@
                                 FontFamily="CairoB"
                                 TextColor="#1a1a1a"
                                 FontSize="14"
-                                Text="إضافة استاذ"
+                                Text="إضافة معلم"
                                 Padding="15"
                                 VerticalOptions="Center"
                                 HorizontalOptions="Center"
