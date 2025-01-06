@@ -44,7 +44,7 @@ public partial class AdminPage : ContentPage
     public string usernamechecker;
     public int SearchTypeNum;
     public string SearchWord;
-    private MineSQLite _sqlite = new MineSQLite();
+    private DataBase _database = DataBase.selectedDatabase;
 
     public AdminPage()
 	{
@@ -70,7 +70,7 @@ public partial class AdminPage : ContentPage
     }
     private async Task LoadTeacher()
     {
-        var TeacherData = await _sqlite.GetUserData(1);
+        var TeacherData = await _database.GetUserData(1);
 
         // Clear existing data and repopulate StdTableSetter
         TeacherTableSetter.Clear();
@@ -84,7 +84,7 @@ public partial class AdminPage : ContentPage
     private async Task LoadSub()
     {
 
-        var SubData = await _sqlite.GetSubData();
+        var SubData = await _database.GetSubData();
 
         // Clear existing data and repopulate StdTableSetter
         
@@ -97,7 +97,7 @@ public partial class AdminPage : ContentPage
     }
     private async Task LoadAdmin()
     {
-        var AdminData = await _sqlite.GetAdminData();
+        var AdminData = await _database.GetAdminData();
 
         // Clear existing data and repopulate StdTableSetter
         AdminSetter.Clear();
@@ -209,17 +209,17 @@ public partial class AdminPage : ContentPage
         {
 
             case 1:
-                var SearchedUserData = await _sqlite.GetUserDataByName(SearchBarEntry.Text.ToLower(), 1);
+                var SearchedUserData = await _database.GetUserDataByName(SearchBarEntry.Text.ToLower(), 1);
                 TeacherTableSetter = new ObservableCollection<UsersAccountTable>(SearchedUserData);
                 TeacherTableDataGrid.ItemsSource = TeacherTableSetter;
                 break;
             case 2:
-                var SearchedSubData = await _sqlite.GetSubDataByName(SearchBarEntry.Text.ToLower());
+                var SearchedSubData = await _database.GetSubDataByName(SearchBarEntry.Text.ToLower());
                 SubSetter = new ObservableCollection<SubTable>(SearchedSubData);
                 SubTableDataGrid.ItemsSource = SubSetter;
                 break;
             case 3:
-                var SearchedAdminData = await _sqlite.GetAdminDataByName(SearchBarEntry.Text.ToLower());
+                var SearchedAdminData = await _database.GetAdminDataByName(SearchBarEntry.Text.ToLower());
                 AdminSetter = new ObservableCollection<AdminAccountTable>(SearchedAdminData);
                 AdminTableDataGrid.ItemsSource = AdminSetter;
                 break;
@@ -312,7 +312,7 @@ public partial class AdminPage : ContentPage
         int id = int.Parse(IdEntry.Text);
 
         // Check if the UserId already exists
-        var existingId = await _sqlite.CheckIfIdExist(id);
+        var existingId = await _database.CheckIfIdExist(id);
         if (existingId != null)
         {
             await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
@@ -321,7 +321,7 @@ public partial class AdminPage : ContentPage
 
         // Check if the Username already exists
         string us = UsernameEntry.Text.ToLower();
-        var existingUsername = await _sqlite.CheckIfUsernameExist(us);
+        var existingUsername = await _database.CheckIfUsernameExist(us);
         if (existingUsername != null)
         {
             await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
@@ -341,7 +341,7 @@ public partial class AdminPage : ContentPage
         }
 
         // Create a new user and insert it into the database
-        await _sqlite.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text, 1);
+        await _database.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text, 1);
 
         await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
@@ -361,7 +361,7 @@ public partial class AdminPage : ContentPage
 
         // Check if the Username already exists
         string us = AdminUsernameEntry.Text.ToLower();
-        var existingUsername = await _sqlite.CheckIfAdminUsernameExist(us);
+        var existingUsername = await _database.CheckIfAdminUsernameExist(us);
         if (existingUsername != null)
         {
             await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
@@ -385,7 +385,7 @@ public partial class AdminPage : ContentPage
 
         // Create a new user and insert it into the database
 
-        await _sqlite.InsertAdmin(us, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
+        await _database.InsertAdmin(us, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
         await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
         // Clear input fields and reload data
@@ -404,7 +404,7 @@ public partial class AdminPage : ContentPage
         }
         if (usernamechecker != UsernameEntry.Text)
         {
-            var existingUsername = await _sqlite.CheckIfUsernameExist(UsernameEntry.Text.ToLower());
+            var existingUsername = await _database.CheckIfUsernameExist(UsernameEntry.Text.ToLower());
             if (existingUsername != null)
             {
                 await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
@@ -425,7 +425,7 @@ public partial class AdminPage : ContentPage
             }
 
         }
-        await _sqlite.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 1, ActiveSwitch.IsToggled);
+        await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 1, ActiveSwitch.IsToggled);
         await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
         // Clear input fields and reload data
@@ -446,7 +446,7 @@ public partial class AdminPage : ContentPage
         if (usernamechecker != AdminUsernameEntry.Text)
         {
             string us = AdminUsernameEntry.Text.ToLower();
-            var existingUsername = await _sqlite.CheckIfAdminUsernameExist(us);
+            var existingUsername = await _database.CheckIfAdminUsernameExist(us);
             if (existingUsername != null)
             {
                 await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
@@ -474,7 +474,7 @@ public partial class AdminPage : ContentPage
         bool AdminType = AdminRadio.IsChecked ? true : false;
 
         // Update Admin using the provided method
-        await _sqlite.UpdateAdmin(AdminId, AdminUsernameEntry.Text, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
+        await _database.UpdateAdmin(AdminId, AdminUsernameEntry.Text, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
 
             await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
@@ -491,7 +491,7 @@ public partial class AdminPage : ContentPage
         if (!conf)
         { return; }
 
-        await _sqlite.DeleteUser(int.Parse(IdEntry.Text));
+        await _database.DeleteUser(int.Parse(IdEntry.Text));
 
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
@@ -503,7 +503,7 @@ public partial class AdminPage : ContentPage
         if (!conf)
         { return; }
 
-        await _sqlite.DeleteAdmin(AdminId);
+        await _database.DeleteAdmin(AdminId);
 
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AdminPopupWindow.IsVisible = false;
@@ -515,7 +515,7 @@ public partial class AdminPage : ContentPage
         if (!conf)
         { return; }
 
-        await _sqlite.DeleteSub(int.Parse(sid));
+        await _database.DeleteSub(int.Parse(sid));
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         SubPopupWindow.IsVisible = false;
         await LoadSub();

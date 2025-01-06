@@ -5,7 +5,7 @@ namespace CollageSystemPC.Pages;
 
 public partial class Login : ContentPage
 {
-    private MineSQLite _sqlite = new MineSQLite();
+    private DataBase _sqlite = DataBase.selectedDatabase;
 
     public Login(){
 		InitializeComponent();

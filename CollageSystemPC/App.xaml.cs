@@ -7,16 +7,13 @@ namespace CollageSystemPC
 {
     public partial class App : Application
     {
-        public string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YourDatabaseName.db");
-        public readonly SQLiteAsyncConnection _database;
-        private MineSQLite _sqlite = new MineSQLite();
-
+        private DataBase _database;
 
         public App()
         {
             InitializeComponent();
-            _database = new SQLiteAsyncConnection(dbPath);
-
+            DataBase.selectedDatabase = new MineSQLite();
+            _database = DataBase.selectedDatabase;
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzYzMTM0MEAzMjM4MmUzMDJlMzBIUEF2a3E1ZzlTN3I3VXJDOHRKNDd3NlIyd0crTTd0TTBibml6Unl6SFl3PQ==");
         }
 
@@ -27,8 +24,7 @@ namespace CollageSystemPC
 
         protected override async void OnStart()
         {
-            var dbHelper = new DatabaseHelper(dbPath);
-            await dbHelper.InitializeDatabaseAsync();
+            await _database.InitializeDatabaseAsync();
             await InitializeApp();
         }
 
@@ -36,10 +32,7 @@ namespace CollageSystemPC
         {
             try
             {
-
-                //var session = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
-                var session = await _sqlite.UserSessionChecker();
-
+                var session = await _database.UserSessionChecker();
 
                 if (session == null)
                 {
@@ -52,7 +45,6 @@ namespace CollageSystemPC
                     }
                     return;
                 }
-
 
                 UserSession.UserId = session.AdminId;
                 UserSession.AdminType = session.AdminType;

@@ -17,7 +17,7 @@ public partial class ManagementPage : ContentPage
         }
     }
 
-    private MineSQLite _sqlite = new MineSQLite();
+    private DataBase _database  = DataBase.selectedDatabase;
 
     
     public ManagementPage()
@@ -56,7 +56,7 @@ public partial class ManagementPage : ContentPage
                 UserId = UserSession.UserId,
                 Password = UserSession.Password,
             };
-            await _sqlite.insertSession(session);
+            await _database.insertSession(session);
         SaveSession.IsVisible = false;
         
     }
@@ -67,7 +67,7 @@ public partial class ManagementPage : ContentPage
     private async Task LoadStd()
     {
         //var std = await _database.Table<UsersAccountTable>().Where(s => s.UserType == 2).ToListAsync();
-        var StdData = await _sqlite.GetUserData(2);
+        var StdData = await _database.GetUserData(2);
         StdTableSetter.Clear();
         StdTableSetter = new ObservableCollection<UsersAccountTable>(StdData);
 
@@ -104,7 +104,7 @@ public partial class ManagementPage : ContentPage
             return;
         }
 
-        var SearchedStdData = await _sqlite.GetUserDataByName(SearchBarEntry.Text.ToLower() , 2);
+        var SearchedStdData = await _database.GetUserDataByName(SearchBarEntry.Text.ToLower() , 2);
         StdTableSetter.Clear();
         StdTableSetter = new ObservableCollection<UsersAccountTable>(SearchedStdData);
         // Switch DataGrid ItemsSource to StdTableSetter
@@ -162,7 +162,7 @@ public partial class ManagementPage : ContentPage
         int id = int.Parse(IdEntry.Text);
 
         // Check if the UserId already exists
-        var existingId = await _sqlite.CheckIfIdExist(id);
+        var existingId = await _database.CheckIfIdExist(id);
         if (existingId != null)
         {
             await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
@@ -171,7 +171,7 @@ public partial class ManagementPage : ContentPage
 
         // Check if the Username already exists
         string us = UsernameEntry.Text.ToLower();
-        var existingUsername = await _sqlite.CheckIfUsernameExist(us);
+        var existingUsername = await _database.CheckIfUsernameExist(us);
         if (existingUsername != null)
         {
             await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
@@ -191,7 +191,7 @@ public partial class ManagementPage : ContentPage
         }
 
         // Create a new user and insert it into the database
-        await _sqlite.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text,2);
+        await _database.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text,2);
 
         await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
@@ -223,7 +223,7 @@ public partial class ManagementPage : ContentPage
             }
 
         }
-        await _sqlite.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 2, ActiveSwitch.IsToggled);
+        await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 2, ActiveSwitch.IsToggled);
         await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
             // Clear input fields and reload data
@@ -237,7 +237,7 @@ public partial class ManagementPage : ContentPage
         if (!conf)
         { return; }
         
-        await _sqlite.DeActiveAllSTD();
+        await _database.DeActiveAllSTD();
         await DisplayAlert("تعطيل", "تم العملية بنجاح", "حسنا");
         await LoadStd();
 
@@ -247,7 +247,7 @@ public partial class ManagementPage : ContentPage
         if (!conf)
         { return; }
 
-        await _sqlite.DeleteUser(int.Parse(IdEntry.Text));
+        await _database.DeleteUser(int.Parse(IdEntry.Text));
         
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
