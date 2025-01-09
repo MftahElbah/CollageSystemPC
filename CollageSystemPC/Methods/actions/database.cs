@@ -79,10 +79,7 @@ namespace CollageSystemPC.Methods.actions
         {
             return new int();
         }
-        public virtual async Task<int> UpdateUser(int Id, string Username, string name, string password, int UserType)
-        {
-            return new int();
-        }
+
         public virtual async Task<int> UpdateAdmin(int Id, string Username, string name, string password, bool AdminType)
         {
             return new int();
