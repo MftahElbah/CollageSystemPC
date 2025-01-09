@@ -133,7 +133,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/AccountAdmin");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<AdminAccountTable>();
             }
             Dictionary<string, AdminAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
             List<AdminAccountTable> list = data.Select(x => x.Value).ToList();
@@ -145,7 +145,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/AccountAdmin");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<AdminAccountTable>();
             }
             Dictionary<string, AdminAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
             List<AdminAccountTable> list = data.Where(x => x.Value.Name == name).Select(x => x.Value).ToList();
@@ -156,7 +156,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/sub");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<SubTable>();
             }
             Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
             List<SubTable> list = data.Select(x => x.Value).ToList();
@@ -167,7 +167,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/sub");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<SubTable>();
             }
             Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
             List<SubTable> list = data.Where(x => x.Value.SubTeacherName == name).Select(x => x.Value).ToList();
@@ -178,7 +178,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/Account");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<UsersAccountTable>();
             }
             Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
             List<UsersAccountTable> list = data.Where(x => x.Value.UserType == type).Select(x => x.Value).ToList();
@@ -189,7 +189,7 @@ namespace CollageSystemPC.Methods.actions
             var set = await client.GetAsync("User/Account");
             if (set == null || set.Body == "null")
             {
-                return null;
+                return new List<UsersAccountTable>();
             }
             Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
             List<UsersAccountTable> list = data.Where(x => x.Value.Name == name && x.Value.UserType == type).Select(x => x.Value).ToList();
