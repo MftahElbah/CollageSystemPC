@@ -2,6 +2,7 @@
 using Syncfusion.Maui.Core.Hosting;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Maui.Handlers;
+using Microsoft.Maui;
 namespace CollageSystemPC
 {
     public static class MauiProgram
@@ -46,6 +47,33 @@ namespace CollageSystemPC
                     }
                 }
             });
+            Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping(nameof(Editor), (handler, view) =>
+            {
+                if (handler.PlatformView is TextBox nativeEditor)
+                {
+                    // Remove the border
+                    nativeEditor.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+
+                    // Remove focus visual (e.g., glowing border or underline when focused)
+                    nativeEditor.Style = new Microsoft.UI.Xaml.Style(typeof(TextBox))
+                    {
+                        Setters =
+            {
+                new Microsoft.UI.Xaml.Setter(TextBox.BorderThicknessProperty, new Microsoft.UI.Xaml.Thickness(0)),
+                new Microsoft.UI.Xaml.Setter(TextBox.FocusVisualMarginProperty, new Microsoft.UI.Xaml.Thickness(0)),
+                new Microsoft.UI.Xaml.Setter(TextBox.FocusVisualPrimaryThicknessProperty, new Microsoft.UI.Xaml.Thickness(0)),
+                new Microsoft.UI.Xaml.Setter(TextBox.FocusVisualSecondaryThicknessProperty, new Microsoft.UI.Xaml.Thickness(0))
+            }
+                    };
+
+                    // Change placeholder text color (optional)
+                    if (!string.IsNullOrEmpty(nativeEditor.PlaceholderText))
+                    {
+                        nativeEditor.PlaceholderForeground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                                        Windows.UI.Color.FromArgb(255, 149, 149, 149));
+                    }
+                }
+            });
 
 
 
@@ -57,6 +85,9 @@ namespace CollageSystemPC
                     nativeRadioButton.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 26, 26, 26));
                 }
             });
+
+
+            
 
 #if DEBUG
             builder.Logging.AddDebug();

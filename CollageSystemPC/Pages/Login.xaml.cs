@@ -5,7 +5,8 @@ namespace CollageSystemPC.Pages;
 
 public partial class Login : ContentPage
 {
-    private DataBase _sqlite = DataBase.selectedDatabase;
+    private DataBase database = DataBase.selectedDatabase;
+    private MineSQLite _sqlite = new MineSQLite();
 
     public Login(){
 		InitializeComponent();
@@ -27,7 +28,7 @@ public partial class Login : ContentPage
         }
         string username = UsernameEntry.Text.ToLower();
         string password = PasswordEntry.Text;
-        var IfUserExist = await _sqlite.UserLoginChecker(username, password);
+        var IfUserExist = await database.UserLoginChecker(username, password,null);
         if (IfUserExist == null)
         {
             await DisplayAlert("خطاء", "هناك خطاء في اسم المستخدم أو كلمة المرور", "حسنا");

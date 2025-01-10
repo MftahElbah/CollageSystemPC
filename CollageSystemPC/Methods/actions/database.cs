@@ -17,11 +17,11 @@ namespace CollageSystemPC.Methods.actions
         {
             await Task.CompletedTask;
         }
-        public virtual async Task<AdminAccountTable> UserSessionChecker()
+        public virtual async Task<UserSessionTable> UserSessionChecker()
         {
-            return new AdminAccountTable();
+            return new UserSessionTable();
         }
-        public virtual async Task<AdminAccountTable> UserLoginChecker(string username, string password)
+        public virtual async Task<AdminAccountTable> UserLoginChecker(string username, string password , string id)
         {
             return new AdminAccountTable();
         }
@@ -84,7 +84,7 @@ namespace CollageSystemPC.Methods.actions
         {
             return new int();
         }
-        public virtual async Task<int> DeleteUser(int Id)
+        public virtual async Task<int> DeleteUser(int Id , int type)
         {
             return new int();
         }
@@ -97,6 +97,33 @@ namespace CollageSystemPC.Methods.actions
             return new int();
         }
         public virtual async Task<int> DeActiveAllSTD()
+        {
+            return new int();
+        }
+
+        public virtual async Task<int> DeleteAllSub()
+        {
+            return new int();
+        }
+
+        public virtual async Task<List<SubjectPosts>> getSubjectPostsBySubId(int subId)
+        {
+            return new List<SubjectPosts>();
+        }
+
+        public virtual async Task<int> insertSubjectPost(SubjectPosts subjectPosts)
+        {
+            return new int();
+        }
+        public virtual async Task<int> updateSubjectPost(SubjectPosts subjectPosts)
+        {
+            return new int();
+        }
+        public virtual async Task<SubjectPosts> getSubjectPost(int postId)
+        {
+            return new SubjectPosts();
+        }
+        public virtual async Task<int> deleteSubjectPost(int postId)
         {
             return new int();
         }

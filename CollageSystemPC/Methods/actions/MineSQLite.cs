@@ -175,20 +175,21 @@ namespace CollageSystemPC.Methods.actions
             }
             return 0;
         }
-        public override async Task<AdminAccountTable> UserSessionChecker()
+        public override async Task<UserSessionTable> UserSessionChecker()
         {
             // Check if a user session exists
             var IfUserExist = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
             if (IfUserExist == null)
                 return null;
 
+            return IfUserExist;
             // Find and return the matching admin user
-            var user = await _database.Table<AdminAccountTable>()
+            /*var user = await _database.Table<AdminAccountTable>()
                                        .FirstOrDefaultAsync(u => u.AdminId == IfUserExist.UserId && u.Password == IfUserExist.Password);
-            return user;
+            return user;*/
         }
 
-        public override async Task<AdminAccountTable > UserLoginChecker(string username, string password)
+        public override async Task<AdminAccountTable > UserLoginChecker(string username, string password , string id)
         {
             var IfUserExist = await _database.Table<AdminAccountTable>().FirstOrDefaultAsync(d => d.Username == username && d.Password == password);
             return IfUserExist;
@@ -316,7 +317,7 @@ namespace CollageSystemPC.Methods.actions
                 return rows;
         }
         
-        public override async Task <int> DeleteUser(int Id)
+        public override async Task <int> DeleteUser(int Id , int type)
         {
             var user = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == Id);
             int rows = await _database.DeleteAsync(user);
@@ -347,7 +348,48 @@ namespace CollageSystemPC.Methods.actions
             int rows = await _database.UpdateAllAsync(stdda);
             return rows;
         }
-        
+        public async Task<int> DeleteAllSub()
+        {
+            try
+            {
+                // Directly delete all rows in SubTable
+                int rows = await _database.DeleteAllAsync<SubTable>();
+                return rows; // Return the number of rows deleted
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting subjects: {ex.Message}");
+                return 0; // Return 0 if deletion fails
+            }
+        }
+
+        public override async Task<List<SubjectPosts>> getSubjectPostsBySubId(int subId)
+        {
+            var posts = await _database.Table<SubjectPosts>().Where(b => b.SubId == subId).ToListAsync();
+            return posts;
+        }
+        public override async Task<int> insertSubjectPost(SubjectPosts subjectPosts)
+        {
+            int row = await _database.InsertAsync(subjectPosts);
+            return row;
+        }
+
+        public override async Task<int> updateSubjectPost(SubjectPosts subjectPosts)
+        {
+            int row = await _database.UpdateAsync(subjectPosts);
+            return row;
+        }
+        public override async Task<SubjectPosts> getSubjectPost(int postId)
+        {
+            var post = await _database.Table<SubjectPosts>().FirstOrDefaultAsync(p => p.PostId == postId);
+            return post;
+        }
+        public override async Task<int> deleteSubjectPost(int postId)
+        {
+            var post = await getSubjectPost(postId);
+            int rows = await _database.DeleteAsync(post);
+            return rows;
+        }
 
     }
 }

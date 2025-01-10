@@ -10,6 +10,7 @@ namespace CollageSystemPC
     public partial class App : Application
     {
         DataBase database = DataBase.selectedDatabase;
+        private MineSQLite _sqlite = new MineSQLite();
         public static async Task<bool> IsInternetAvailable()
         {
             try
@@ -66,9 +67,10 @@ namespace CollageSystemPC
         {
             try
             {
-                var session = await database.UserSessionChecker();
+                var session = await _sqlite.UserSessionChecker();
+                var trylogin = await database.UserLoginChecker(null,session.Password,session.UserId.ToString());
 
-                if (session == null)
+                if (trylogin == null)
                 {
                     if (Application.Current?.Windows.Count > 0)
                     {
@@ -80,9 +82,10 @@ namespace CollageSystemPC
                     return;
                 }
 
-                UserSession.UserId = session.AdminId;
-                UserSession.AdminType = session.AdminType;
-                UserSession.Password = session.Password;
+                UserSession.UserId = trylogin.AdminId;
+                UserSession.name = trylogin.Name;
+                UserSession.AdminType = trylogin.AdminType;
+                UserSession.Password = trylogin.Password;
                 UserSession.SessionYesNo = true;
 
                 if (Application.Current?.Windows.Count > 0)

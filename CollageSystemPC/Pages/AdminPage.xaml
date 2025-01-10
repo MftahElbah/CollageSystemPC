@@ -11,6 +11,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
 
             </Grid.RowDefinitions>
@@ -69,7 +70,7 @@
                         <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
 
-                    <HorizontalStackLayout HorizontalOptions="Center">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
                         <Button Text="المعلمين"
                             HorizontalOptions="Center" 
                             FontFamily="CairoB"
@@ -110,7 +111,9 @@
                                TextChanged="SearchBarEntryChanged"/>
                 </VerticalStackLayout>
             </Border>
-                <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
+            <Button Text="حذف جميع المواد" HorizontalOptions="Center" VerticalOptions="Center" Padding="30,20" x:Name="DeleteAllSubBtn" Clicked="DeleteAllSubBtnClicked" BackgroundColor="#F02C2C" TextColor="#efefef" CornerRadius="20" FontFamily="CairoB" Grid.Row="3"/>
+
+            <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
                                      SelectionChanged="TeacherTableSelectionChanged"
                                      SelectionMode="Single"
                                      NavigationMode="Row"
@@ -119,7 +122,7 @@
                                      DataFetchSize="30"
                                      MaximumHeightRequest="1200"
                                      EnableDataVirtualization="True"  
-                                     Grid.Row="3" 
+                                     Grid.Row="4" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                                      >
@@ -152,7 +155,8 @@
                     </datagrid:SfDataGrid.Columns>
 
                 </datagrid:SfDataGrid>
-                <datagrid:SfDataGrid x:Name="SubTableDataGrid"
+            
+            <datagrid:SfDataGrid x:Name="SubTableDataGrid"
                                      SelectionChanged="SubTableSelectionChanged"
                                      SelectionMode="Single"
                                      NavigationMode="Row"
@@ -160,7 +164,7 @@
                                      AutoGenerateColumnsMode="None"
                                      DataFetchSize="30"
                                      EnableDataVirtualization="True" 
-                                     Grid.Row="3" 
+                                     Grid.Row="4" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                >
@@ -182,7 +186,8 @@
 
                     </datagrid:SfDataGrid.Columns>
                 </datagrid:SfDataGrid>
-                <datagrid:SfDataGrid x:Name="AdminTableDataGrid"
+            
+            <datagrid:SfDataGrid x:Name="AdminTableDataGrid"
                                      SelectionChanged="AdminTableSelectionChanged"
                                      SelectionMode="Single"
                                      NavigationMode="Row"
@@ -190,7 +195,7 @@
                                      AutoGenerateColumnsMode="None"
                                      DataFetchSize="30"
                                      EnableDataVirtualization="True"
-                                     Grid.Row="3" 
+                                     Grid.Row="4" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                                      >
@@ -223,9 +228,10 @@
                     </datagrid:SfDataGrid.Columns>
 
                 </datagrid:SfDataGrid>
+            
         </Grid>
         <ContentView x:Name="AcountPopupWindow" IsVisible="False" BackgroundColor="#80000000">
-            <Border Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
+            <Border x:Name="AcountPopupBorder" Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
 
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
@@ -269,6 +275,7 @@
 
                                     <VerticalStackLayout>
                                         <Entry x:Name="IdEntry"
+                                               TextChanged="IdEntryChanged"
                                    FontFamily="CairoB" 
                                    FontSize="14" 
                                    TextColor="#1a1a1a"
@@ -277,7 +284,7 @@
                                    Placeholder="رم"
                                    PlaceholderColor="#959595"
                                    IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
-                                   TextChanged="SearchBarEntryChanged"/>
+                                   />
                                     </VerticalStackLayout>
                                 </Border>
                                 <!-- NameEntry -->
@@ -316,15 +323,17 @@
                                     <VerticalStackLayout >
                                         <!-- Entry -->
                                         <Entry x:Name="UsernameEntry"
-                                   FontFamily="CairoB" 
-                                   FontSize="14" 
-                                   TextColor="#1a1a1a"
-                                   BackgroundColor="Transparent"
-                                   Keyboard="Text"
-                                   Placeholder="اسم المستخدم"
-                                   PlaceholderColor="#959595"
-                                   IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
-                                   />
+                                               TextChanged="UsernameEntryChanged"
+                                               FontFamily="CairoB" 
+                                               FontSize="14" 
+                                               TextColor="#1a1a1a"
+                                               BackgroundColor="Transparent"
+                                               Keyboard="Text"
+                                               Placeholder="اسم المستخدم"
+                                               PlaceholderColor="#959595"
+                                               IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                               />
+                                        
                                     </VerticalStackLayout>
                                 </Border>
 
@@ -380,7 +389,7 @@
         </ContentView>
 
         <ContentView x:Name="SubPopupWindow" IsVisible="False" BackgroundColor="#80000000">
-            <Border Padding="50,30" BackgroundColor="#ededed" VerticalOptions="Center" HorizontalOptions="Center">
+            <Border x:Name="SubPopupBorder" Padding="50,30" BackgroundColor="#ededed" VerticalOptions="Center" HorizontalOptions="Center">
                 <Border.Shadow>
                     <Shadow Brush="#1a1a1a"
                     Opacity="0.5"
@@ -406,7 +415,7 @@
         </ContentView>
 
         <ContentView x:Name="AdminPopupWindow" IsVisible="False" BackgroundColor="#80000000">
-            <Border Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
+            <Border x:Name="AdminPopupBorder" Padding="20" BackgroundColor="#efefef"  HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="800">
 
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="20"/>
@@ -483,6 +492,7 @@
                                     <VerticalStackLayout >
                                         <!-- Entry -->
                                         <Entry x:Name="AdminUsernameEntry"
+                                               TextChanged="AdminUsernameEntryChanged"
                                    FontFamily="CairoB" 
                                    FontSize="14" 
                                    TextColor="#1a1a1a"
@@ -539,6 +549,63 @@
                         </Border>
                     </VerticalStackLayout>
                 </Grid>
+            </Border>
+        </ContentView>
+
+        <ContentView x:Name="PasswordPopup" IsVisible="False" BackgroundColor="#80000000" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" ZIndex="1">
+            <Border x:Name="PasswordPopupBorder" Padding="20" BackgroundColor="#EFEFEF" VerticalOptions="Center" HorizontalOptions="Center" Margin="20,0" MaximumWidthRequest="400">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#1a1a1a"
+                            Opacity="0.5"
+                            Radius="05"
+                            Offset="0,10" />
+                </Border.Shadow>
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="20" VerticalOptions="Center">
+
+                    <!-- Close Button -->
+
+                    <Button Text="إلغاء" VerticalOptions="Center" HorizontalOptions="End" Clicked="CancelDeleteClicked" FontFamily="CairoB" BackgroundColor="#1a1a1a" TextColor="#efefef" Grid.Row="0"/>
+
+                    <!-- Title Label -->
+                    <Label Text="هل انت متأكد من حذف جميع المواد؟" 
+                   FontSize="20" 
+                   LineBreakMode="WordWrap"
+                   HorizontalOptions="Center" 
+                   FontAttributes="Bold" 
+                   FontFamily="CairoB"
+                   TextColor="#1a1a1a"/>
+
+                    <!-- Password Entry (for confirmation) -->
+                    <Border Stroke="#959595" StrokeThickness="3" Padding="10" WidthRequest="300" BackgroundColor="#D9D9D9">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20"/>
+                        </Border.StrokeShape>
+                        <Entry x:Name="AgreePasswordEntry"
+                       FontFamily="CairoB" FontSize="16" TextColor="#1a1a1a" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                       Placeholder="أدخل كلمة السر للتأكيد"
+                       IsPassword="True"
+                       BackgroundColor="#dcdcdc"
+                       Keyboard="Text"/>
+                    </Border>
+
+                    <!-- Action Buttons -->
+                    <Button CornerRadius="20" 
+                    BackgroundColor="#D3B05F"
+                    TextColor="#1a1a1a"
+                    Padding="15"
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    FontFamily="CairoB"
+                    Text="موافقة"
+                    Clicked="AgreeDeleteClicked">
+
+                    </Button>
+
+                </VerticalStackLayout>
             </Border>
         </ContentView>
     </Grid>

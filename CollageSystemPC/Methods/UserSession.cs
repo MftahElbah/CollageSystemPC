@@ -10,6 +10,7 @@ namespace CollageSystemPC.Methods
     {
         public static int UserId { get; set; }
         public static string Password { get; set; }
+        public static string name { get; set; }
         public static bool AdminType { get; set; }
         public static bool SessionYesNo { get; set; }
         public static bool internet { get; set; }

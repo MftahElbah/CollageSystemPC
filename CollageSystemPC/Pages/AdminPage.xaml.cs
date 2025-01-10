@@ -1,4 +1,5 @@
 ﻿
+using CollageSystemPC.Methods;
 using CollageSystemPC.Methods.actions;
 using System.Collections.ObjectModel;
 using TP.Methods;
@@ -57,9 +58,11 @@ public partial class AdminPage : ContentPage
         BindingContext = this;
         PageShowStatus(1);
 
-        HideContentViewMethod.HideContentView(AcountPopupWindow);
-        HideContentViewMethod.HideContentView(AdminPopupWindow);
-        HideContentViewMethod.HideContentView(SubPopupWindow);
+        HideContentViewMethod.HideContentView(AcountPopupWindow, AcountPopupBorder);
+        HideContentViewMethod.HideContentView(AdminPopupWindow , AdminPopupBorder);
+        HideContentViewMethod.HideContentView(SubPopupWindow, SubPopupBorder);
+        HideContentViewMethod.HideContentView(PasswordPopup, PasswordPopupBorder);
+
     }
     protected override async void OnAppearing()
     {
@@ -158,6 +161,7 @@ public partial class AdminPage : ContentPage
         SubTableShower.TextColor = Color.FromArgb("#1A1A1A");
         SubTableShower.Background = Colors.Transparent;
         SubTableDataGrid.IsVisible = false;
+        DeleteAllSubBtn.IsVisible = false;
 
         AdminTableShower.TextColor = Color.FromArgb("#1A1A1A");
         AdminTableShower.Background = Colors.Transparent;
@@ -180,6 +184,7 @@ public partial class AdminPage : ContentPage
                 SubTableShower.Background = Color.FromArgb("#1a1a1a");
                 SubTableDataGrid.IsVisible = true;
                 SearchBarEntry.Placeholder = "بحث بأسم المادة";
+                DeleteAllSubBtn.IsVisible = true;
                 break;
             case 3:
                 AdminTableShower.TextColor = Color.FromArgb("#efefef");
@@ -258,6 +263,7 @@ public partial class AdminPage : ContentPage
     private void SubTableSelectionChanged(object sender, Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e){
         var DataRow = SubTableDataGrid.SelectedRow;
 
+
         sid = DataRow?.GetType().GetProperty("SubId")?.GetValue(DataRow)?.ToString();
         SubNameLbl.Text = $"اسم المادة: {DataRow?.GetType().GetProperty("SubName")?.GetValue(DataRow)?.ToString()}";
         TeacherIdLbl.Text = $"رقم الاستاذ: {DataRow?.GetType().GetProperty("UserId")?.GetValue(DataRow)?.ToString()}";
@@ -301,6 +307,63 @@ public partial class AdminPage : ContentPage
         }
     }
 
+
+    private void UsernameEntryChanged(object sender, TextChangedEventArgs e)
+    {
+        // Get the text from the Entry control
+        string enteredText = e.NewTextValue;
+
+        // Check if the entered text is in English by matching it with the English characters pattern
+        if (IsTextInEnglish(enteredText))
+        {
+            // If the text is in English, do nothing or allow further processing
+            Console.WriteLine("The text is in English");
+        }
+        else
+        {
+            // If the text is not in English, clear the text
+            ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);
+            Console.WriteLine("The text was not in English, so it was cleared.");
+        }
+    }
+    private void AdminUsernameEntryChanged(object sender, TextChangedEventArgs e)
+    {
+        // Get the text from the Entry control
+        string enteredText = e.NewTextValue;
+
+        // Check if the entered text is in English by matching it with the English characters pattern
+        if (IsTextInEnglish(enteredText))
+        {
+            // If the text is in English, do nothing or allow further processing
+            Console.WriteLine("The text is in English");
+        }
+        else
+        {
+            // If the text is not in English, clear the text
+            ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);
+            Console.WriteLine("The text was not in English, so it was cleared.");
+        }
+    }
+
+    // Helper method to check if the text is in English
+    private bool IsTextInEnglish(string text)
+    {
+        // Use a simple regex or check if the text contains only English letters and whitespace
+        return text.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)) && text.All(c => c <= 127); // Check if all characters are in the ASCII range
+    }
+
+    private void IdEntryChanged(object sender, TextChangedEventArgs e)
+    {
+        // Get the entered text
+        string enteredText = e.NewTextValue;
+
+        // Check if the entered text is numeric
+        if (!string.IsNullOrEmpty(enteredText) && !enteredText.All(char.IsDigit))
+        {
+            // If it's not numeric, clear the text
+            ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);
+        }
+    }
     private async void SaveBtnClicked(object sender, EventArgs e){
         
         if (string.IsNullOrEmpty(IdEntry.Text) || string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text) || string.IsNullOrEmpty(PasswordEntry.Text) || string.IsNullOrEmpty(ConfirmPasswordEntry.Text))
@@ -425,7 +488,7 @@ public partial class AdminPage : ContentPage
             }
 
         }
-        await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text, NameEntry.Text, PasswordEntry.Text, 1, ActiveSwitch.IsToggled);
+        await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text.ToLower(), NameEntry.Text, PasswordEntry.Text, 1, ActiveSwitch.IsToggled);
         await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
         // Clear input fields and reload data
@@ -474,7 +537,7 @@ public partial class AdminPage : ContentPage
         bool AdminType = AdminRadio.IsChecked ? true : false;
 
         // Update Admin using the provided method
-        await _database.UpdateAdmin(AdminId, AdminUsernameEntry.Text, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
+        await _database.UpdateAdmin(AdminId, AdminUsernameEntry.Text.ToLower(), AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
 
             await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
 
@@ -491,7 +554,7 @@ public partial class AdminPage : ContentPage
         if (!conf)
         { return; }
 
-        await _database.DeleteUser(int.Parse(IdEntry.Text));
+        await _database.DeleteUser(int.Parse(IdEntry.Text) , 1);
 
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
@@ -519,6 +582,27 @@ public partial class AdminPage : ContentPage
         await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         SubPopupWindow.IsVisible = false;
         await LoadSub();
+    }
+    private async void CancelDeleteClicked(object sender, EventArgs e)
+    {
+        PasswordPopup.IsVisible = false;
+    }
+    private async void DeleteAllSubBtnClicked(object sender, EventArgs e)
+    {
+        PasswordPopup.IsVisible = true;
+    }
+    private async void AgreeDeleteClicked(object sender, EventArgs e)
+    {
+        if (AgreePasswordEntry.Text != UserSession.Password)
+        {
+            await DisplayAlert("متأكد؟", "خطا في كلمة السر", "نعم");
+            return;
+        }
+
+        await _database.DeleteAllSub();
+        await DisplayAlert("تعطيل", "تم الحذف بنجاح", "حسنا");
+        await LoadSub();
+        PasswordPopup.IsVisible = false;
     }
 
 

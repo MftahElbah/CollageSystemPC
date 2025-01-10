@@ -42,5 +42,45 @@ namespace CollageSystemPC
         public string SubTeacherName { get; set; }
 
     }
+
+    public class SubjectPosts
+    {
+        [PrimaryKey, AutoIncrement]
+        public int PostId { get; set; }
+        public int SubId { get; set; }
+        public string PostTitle { get; set; }
+        public string PostDes { get; set; }
+        public DateTime PostDate { get; set; }
+        //public DateTime? DeadLineTime { get; set; }
+        //public Byte[] PostDesFile { get; set; }
+        public string PostFileLink { get; set; }
+
+    }
+
+    public class RequestJoinSubject
+    {
+        [PrimaryKey, AutoIncrement]
+        public int ReqId { get; set; }
+        public int UserId { get; set; }
+        public string Name { get; set; }
+        public int SubId { get; set; }
+        public DateTime RequestDate { get; set; }
+    }
+
+    public class DegreeTable
+    {
+        [PrimaryKey, AutoIncrement]
+        public int DegId { get; set; } //foreignkey to Subject
+        public int SubId { get; set; } //foreignkey to Subject
+        public string StdName { get; set; } //foreignkey to UsertsAccount UserId type 3
+        public float Deg { get; set; }
+        public float MiddelDeg { get; set; }
+        public float Total
+        {
+            get { return Deg + MiddelDeg; }
+        }
+    }
+
+
     /*public string SubTeacher { get; set; }*/
 }
