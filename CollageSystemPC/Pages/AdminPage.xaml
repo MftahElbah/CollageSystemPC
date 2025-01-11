@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CollageSystemPC.Pages.AdminPage"
              xmlns:datagrid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             xmlns:snackbarmessage="clr-namespace:CollageSystemPC.Pages"
              FlowDirection="RightToLeft"
              Background="#efefef">
-    <Grid>
+    <Grid x:Name="MainLayout">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -608,5 +609,7 @@
                 </VerticalStackLayout>
             </Border>
         </ContentView>
+        <snackbarmessage:SnackbarPopup HorizontalOptions="Center" VerticalOptions="End" x:Name="Snackbar" ZIndex="100"/>
+
     </Grid>
 </ContentPage>

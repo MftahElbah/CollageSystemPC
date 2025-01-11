@@ -364,105 +364,92 @@ public partial class AdminPage : ContentPage
             ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);
         }
     }
-    private async void SaveBtnClicked(object sender, EventArgs e){
-        
+    private async void SaveBtnClicked(object sender, EventArgs e)
+    {
         if (string.IsNullOrEmpty(IdEntry.Text) || string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text) || string.IsNullOrEmpty(PasswordEntry.Text) || string.IsNullOrEmpty(ConfirmPasswordEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب ملئ جميع الحقول", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ملئ جميع الحقول");
             return;
         }
 
         int id = int.Parse(IdEntry.Text);
 
-        // Check if the UserId already exists
         var existingId = await _database.CheckIfIdExist(id);
         if (existingId != null)
         {
-            await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
+            Snackbar.ShowSnackbar(2, "رقم الدراسي المكتوب موجود بالفعل");
             return;
         }
 
-        // Check if the Username already exists
         string us = UsernameEntry.Text.ToLower();
         var existingUsername = await _database.CheckIfUsernameExist(us);
         if (existingUsername != null)
         {
-            await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+            Snackbar.ShowSnackbar(2,"اسم المستخدم المكتوب موجود بالفعل");
             return;
         }
 
         if (PasswordEntry.Text.Length < 8)
         {
-            await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
             return;
         }
 
         if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
         {
-            await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+            Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
             return;
         }
 
-        // Create a new user and insert it into the database
         await _database.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text, 1);
 
-        await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
-
-        // Clear input fields and reload data
         ClearEntrys();
         await LoadTeacher();
         AcountPopupWindow.IsVisible = false;
-      
+        Snackbar.ShowSnackbar(1,"تم التسجيل بنجاح");
     }
-    private async void AdminSaveBtnClicked(object sender, EventArgs e){
-
-        if ( string.IsNullOrEmpty(AdminNameEntry.Text) || string.IsNullOrEmpty(AdminUsernameEntry.Text) || string.IsNullOrEmpty(AdminPasswordEntry.Text) || string.IsNullOrEmpty(AdminConfirmPasswordEntry.Text))
+    private async void AdminSaveBtnClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrEmpty(AdminNameEntry.Text) || string.IsNullOrEmpty(AdminUsernameEntry.Text) || string.IsNullOrEmpty(AdminPasswordEntry.Text) || string.IsNullOrEmpty(AdminConfirmPasswordEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب ملئ جميع الحقول", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ملئ جميع الحقول");
             return;
         }
 
-        // Check if the Username already exists
         string us = AdminUsernameEntry.Text.ToLower();
         var existingUsername = await _database.CheckIfAdminUsernameExist(us);
         if (existingUsername != null)
         {
-            await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+            Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
             return;
         }
 
         if (AdminPasswordEntry.Text.Length < 8)
         {
-            await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
             return;
         }
 
         if (AdminPasswordEntry.Text != AdminConfirmPasswordEntry.Text)
         {
-            await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+            Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
             return;
         }
 
-        bool AdminType = AdminRadio.IsChecked ? true : false;
-
-
-        // Create a new user and insert it into the database
-
+        bool AdminType = AdminRadio.IsChecked;
         await _database.InsertAdmin(us, AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
-        await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
-        // Clear input fields and reload data
         ClearEntrys();
         await LoadTeacher();
         AdminPopupWindow.IsVisible = false;
-
+        Snackbar.ShowSnackbar(1, "تم التسجيل بنجاح");
     }
 
-    private async void UpdateBtnClicked(object sender, EventArgs e) {
-        // Check if Name or Username fields are empty
+    private async void UpdateBtnClicked(object sender, EventArgs e)
+    {
         if (string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب الا يكون حقل الاسم و اسم المستخدم فارغين", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب الا يكون حقل الاسم و اسم المستخدم فارغين");
             return;
         }
         if (usernamechecker != UsernameEntry.Text)
@@ -470,118 +457,161 @@ public partial class AdminPage : ContentPage
             var existingUsername = await _database.CheckIfUsernameExist(UsernameEntry.Text.ToLower());
             if (existingUsername != null)
             {
-                await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+                Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
                 return;
             }
         }
-        if (!string.IsNullOrEmpty(PasswordEntry.Text)){
+        if (!string.IsNullOrEmpty(PasswordEntry.Text))
+        {
             if (PasswordEntry.Text.Length < 8)
             {
-                await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+                Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
                 return;
             }
-
             if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
             {
-                await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+                Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
                 return;
             }
-
         }
         await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text.ToLower(), NameEntry.Text, PasswordEntry.Text, 1, ActiveSwitch.IsToggled);
-        await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
+        Snackbar.ShowSnackbar(1, "تم التعديل بنجاح");
 
-        // Clear input fields and reload data
         ClearEntrys();
         await LoadTeacher();
         AcountPopupWindow.IsVisible = false;
     }
     private async void AdminUpdateBtnClicked(object sender, EventArgs e)
     {
-        // Check if Name or Username fields are empty
         if (string.IsNullOrEmpty(AdminNameEntry.Text) || string.IsNullOrEmpty(AdminUsernameEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب الا يكون حقل الاسم و اسم المستخدم فارغين", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب الا يكون حقل الاسم و اسم المستخدم فارغين");
             return;
         }
 
-        // Check if Username is being changed and already exists
         if (usernamechecker != AdminUsernameEntry.Text)
         {
             string us = AdminUsernameEntry.Text.ToLower();
             var existingUsername = await _database.CheckIfAdminUsernameExist(us);
             if (existingUsername != null)
             {
-                await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+                Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
                 return;
             }
         }
 
-        // Validate password if provided
         if (!string.IsNullOrEmpty(AdminPasswordEntry.Text))
         {
             if (AdminPasswordEntry.Text.Length < 8)
             {
-                await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+                Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
                 return;
             }
 
             if (AdminPasswordEntry.Text != AdminConfirmPasswordEntry.Text)
             {
-                await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+                Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
                 return;
             }
         }
 
-        // Determine AdminType based on radio button selection
-        bool AdminType = AdminRadio.IsChecked ? true : false;
-
-        // Update Admin using the provided method
+        bool AdminType = AdminRadio.IsChecked;
         await _database.UpdateAdmin(AdminId, AdminUsernameEntry.Text.ToLower(), AdminNameEntry.Text, AdminPasswordEntry.Text, AdminType);
+        Snackbar.ShowSnackbar(1, "تم التعديل بنجاح");
 
-            await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
-
-            // Clear input fields and reload data
-            ClearEntrys();
-            await LoadAdmin();
-            AdminPopupWindow.IsVisible = false;
-        
+        ClearEntrys();
+        await LoadAdmin();
+        AdminPopupWindow.IsVisible = false;
     }
+
 
 
     private async void DelAccBtnClicked(object sender, EventArgs e){
-        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
+        /*bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
         if (!conf)
-        { return; }
+        { return; }*/
+
+        var yesNoPopup = new YesNoContentView();
+
+        // Add the popup to the current page's layout (assuming a Grid or StackLayout named 'MainLayout')
+        MainLayout.Children.Add(yesNoPopup);
+
+        // Show the popup and wait for the user's response
+        bool isConfirmed = await yesNoPopup.ShowAsync();
+
+        // Remove the popup after the response
+        MainLayout.Children.Remove(yesNoPopup);
+
+        // If user clicked "No", exit the method
+        if (!isConfirmed)
+        {
+            return;
+        }
 
         await _database.DeleteUser(int.Parse(IdEntry.Text) , 1);
 
-        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
         ClearEntrys();
         await LoadTeacher();
+        Snackbar.ShowSnackbar(1, "تم الحذف بنجاح");
     }
     private async void DelAdminBtnClicked(object sender, EventArgs e) {
-        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا المسؤول؟", "نعم", "لا");
+        var yesNoPopup = new YesNoContentView();
+
+        // Add the popup to the current page's layout (assuming a Grid or StackLayout named 'MainLayout')
+        MainLayout.Children.Add(yesNoPopup);
+
+        // Show the popup and wait for the user's response
+        bool isConfirmed = await yesNoPopup.ShowAsync();
+
+        // Remove the popup after the response
+        MainLayout.Children.Remove(yesNoPopup);
+
+        // If user clicked "No", exit the method
+        if (!isConfirmed)
+        {
+            return;
+        }
+        /*bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا المسؤول؟", "نعم", "لا");
         if (!conf)
-        { return; }
+        { return; }*/
 
         await _database.DeleteAdmin(AdminId);
 
-        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AdminPopupWindow.IsVisible = false;
         ClearEntrys();
         await LoadAdmin();
+        Snackbar.ShowSnackbar(1, "تم الحذف بنجاح");
     }
     private async void DeleteSubClick(object sender, EventArgs e){
-        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذه المادة؟", "نعم", "لا");
-        if (!conf)
-        { return; }
+        //bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذه المادة؟", "نعم", "لا");
+        //if (!conf)
+        //{ return; }
+
+        var yesNoPopup = new YesNoContentView();
+
+        // Add the popup to the current page's layout (assuming a Grid or StackLayout named 'MainLayout')
+        MainLayout.Children.Add(yesNoPopup);
+
+        // Show the popup and wait for the user's response
+        bool isConfirmed = await yesNoPopup.ShowAsync();
+
+        // Remove the popup after the response
+        MainLayout.Children.Remove(yesNoPopup);
+
+        // If user clicked "No", exit the method
+        if (!isConfirmed)
+        {
+            return;
+        }
 
         await _database.DeleteSub(int.Parse(sid));
-        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         SubPopupWindow.IsVisible = false;
         await LoadSub();
+        Snackbar.ShowSnackbar(1, "تم الحذف بنجاح");
     }
     private async void CancelDeleteClicked(object sender, EventArgs e)
     {
@@ -595,14 +625,16 @@ public partial class AdminPage : ContentPage
     {
         if (AgreePasswordEntry.Text != UserSession.Password)
         {
-            await DisplayAlert("متأكد؟", "خطا في كلمة السر", "نعم");
+            //await DisplayAlert("متأكد؟", "خطا في كلمة السر", "نعم");
+            Snackbar.ShowSnackbar(2, "خطا في كلمة السر");
             return;
         }
 
         await _database.DeleteAllSub();
-        await DisplayAlert("تعطيل", "تم الحذف بنجاح", "حسنا");
+        //await DisplayAlert("تعطيل", "تم الحذف بنجاح", "حسنا");
         await LoadSub();
         PasswordPopup.IsVisible = false;
+        Snackbar.ShowSnackbar(1, "تم الحذف بنجاح");
     }
 
 

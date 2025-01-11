@@ -303,12 +303,14 @@ namespace CollageSystemPC.Methods.actions
                 var posts = JsonConvert.DeserializeObject<List<SubjectPosts>>(postData.Body);
                 foreach (var item in posts)
                 {
-                    if (item.SubId == subId)
-                    {
-                        var postDelete = await client.DeleteAsync($"post/{item.PostId}");
-                        if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                    if (item != null) { 
+                        if (item.SubId == subId)
                         {
-                            deletedCount++;
+                            var postDelete = await client.DeleteAsync($"post/{item.PostId}");
+                            if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                deletedCount++;
+                            }
                         }
                     }
                 }

@@ -155,7 +155,7 @@ public partial class ManagementPage : ContentPage
         DeletePostBtn.IsVisible = false ;
         ClearEntrys();
         PostPopupWindow.IsVisible = true ;
-
+        SavePostBtn.Text = "إضافة المنشور";
     }
     private void AddClicked(object sender, EventArgs e){
         IdEntry.IsEnabled = true;
@@ -229,7 +229,8 @@ public partial class ManagementPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            //await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            Snackbar.ShowSnackbar(2, $"An error occurred: {ex.Message}");
         }
     }
 
@@ -282,7 +283,9 @@ public partial class ManagementPage : ContentPage
     {
         if (string.IsNullOrEmpty(IdEntry.Text) || string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text) || string.IsNullOrEmpty(PasswordEntry.Text) || string.IsNullOrEmpty(ConfirmPasswordEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب ملئ جميع الحقول", "حسنا");
+
+            //await DisplayAlert("خطاء", "يجب ملئ جميع الحقول", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ملئ جميع الحقول");
             return;
         }
 
@@ -292,7 +295,8 @@ public partial class ManagementPage : ContentPage
         var existingId = await _database.CheckIfIdExist(id);
         if (existingId != null)
         {
-            await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
+            Snackbar.ShowSnackbar(2, "رقم الدراسي المكتوب موجود بالفعل");
+            //await DisplayAlert("خطاء", "رقم الدراسي المكتوب موجود بالفعل", "حسنا");
             return;
         }
 
@@ -301,69 +305,65 @@ public partial class ManagementPage : ContentPage
         var existingUsername = await _database.CheckIfUsernameExist(us);
         if (existingUsername != null)
         {
-            await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+            Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
+            //await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
             return;
         }
 
         if (PasswordEntry.Text.Length < 8)
         {
-            await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
+            //await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
             return;
         }
 
         if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
         {
-            await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+            Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
+            //await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
             return;
         }
 
         // Create a new user and insert it into the database
         await _database.InsertUser(id, us, NameEntry.Text, PasswordEntry.Text,2);
 
-        await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
+        //await DisplayAlert("نجحت", "تم التسجيل بنجاح", "حسنا");
 
         // Clear input fields and reload data
         ClearEntrys();
         await LoadStd();
         PageShowStatus(1);
         AcountPopupWindow.IsVisible = false;
+        Snackbar.ShowSnackbar(1, "تم التسجيل بنجاح");
     }
     private async void UpdateBtnClicked(object sender, EventArgs e)
     {
-        // Check if Name or Username fields are empty
         if (string.IsNullOrEmpty(NameEntry.Text) || string.IsNullOrEmpty(UsernameEntry.Text))
         {
-            await DisplayAlert("خطاء", "يجب الا يكون حقل الاسم و اسم المستخدم فارغين", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب الا يكون حقل الاسم و اسم المستخدم فارغين");
             return;
         }
         if (!string.IsNullOrEmpty(PasswordEntry.Text))
         {
             if (PasswordEntry.Text.Length < 8)
             {
-                await DisplayAlert("خطاء", "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل", "حسنا");
+                Snackbar.ShowSnackbar(2, "يجب ان يكون كلمة السر يتكون من 8 حروف على الأقل");
                 return;
             }
-
             if (PasswordEntry.Text != ConfirmPasswordEntry.Text)
             {
-                await DisplayAlert("خطاء", "كلمة السر غير متشابهة", "حسنا");
+                Snackbar.ShowSnackbar(2, "كلمة السر غير متشابهة");
                 return;
             }
-
         }
         await _database.UpdateUser(int.Parse(IdEntry.Text), UsernameEntry.Text.ToLower(), NameEntry.Text, PasswordEntry.Text, 2, ActiveSwitch.IsToggled);
-        await DisplayAlert("نجحت", "تم التعديل بنجاح", "حسنا");
-
-            // Clear input fields and reload data
-            ClearEntrys();
-            await LoadStd();
-            AcountPopupWindow.IsVisible = false;
-
+        Snackbar.ShowSnackbar(1, "تم التعديل بنجاح");
+        ClearEntrys();
+        await LoadStd();
+        AcountPopupWindow.IsVisible = false;
     }
     private void DeActiveStdClicked(object sender, EventArgs e) {
         PasswordPopup.IsVisible = true;
-
-        
     }
     private void CancelDeActiveClicked(object sender, EventArgs e) {
         AgreePasswordEntry.Text = string.Empty;
@@ -373,28 +373,50 @@ public partial class ManagementPage : ContentPage
 
         if (AgreePasswordEntry.Text != UserSession.Password)
         {
-            await DisplayAlert("متأكد؟", "خطا في كلمة السر", "نعم");
+            Snackbar.ShowSnackbar(2, "خطا في كلمة السر");
+            //await DisplayAlert("متأكد؟", "خطا في كلمة السر", "نعم");
             return;
         }
         
         await _database.DeActiveAllSTD();
-        await DisplayAlert("تعطيل", "تم العملية بنجاح", "حسنا");
+        //await DisplayAlert("تعطيل", "تم العملية بنجاح", "حسنا");
         await LoadStd();
+        PasswordPopup.IsVisible = false;
+        Snackbar.ShowSnackbar(1, "تم العملية بنجاح");
     }
 
     private async void DelAccBtnClicked(object sender, EventArgs e){
-        bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
+        /*bool conf = await DisplayAlert("متأكد؟", "هل انت متأكد من حذف هذا الحساب؟", "نعم", "لا");
         if (!conf)
-        { return; }
+        { return; }*/
+
+
+        var yesNoPopup = new YesNoContentView();
+
+        // Add the popup to the current page's layout (assuming a Grid or StackLayout named 'MainLayout')
+        MainLayout.Children.Add(yesNoPopup);
+
+        // Show the popup and wait for the user's response
+        bool isConfirmed = await yesNoPopup.ShowAsync();
+
+        // Remove the popup after the response
+        MainLayout.Children.Remove(yesNoPopup);
+
+        // If user clicked "No", exit the method
+        if (!isConfirmed)
+        {
+            return;
+        }
 
         await _database.DeleteUser(int.Parse(IdEntry.Text) , 2);
         
-        await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
+        //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
         ClearEntrys();
         await LoadStd();
         PasswordPopup.IsVisible = false;
         PageShowStatus(1);
+        Snackbar.ShowSnackbar(1, "تم الحذف بنجاح");
     }
     
 
@@ -407,7 +429,7 @@ public partial class ManagementPage : ContentPage
         TitleEntry.Text = string.Empty;
         DesEditor.Text = string.Empty;
         LinkEntry.Text = string.Empty;
-        
+        PostId = string.Empty;
     }
 
     private void StudentTableShowerClicked(object sender, EventArgs e)
@@ -481,7 +503,7 @@ public partial class ManagementPage : ContentPage
         {
             OpenLinkBtn.IsVisible = true;
         }*/
-
+        SavePostBtn.Text = "تعديل المنشور";
         PostPopupWindow.IsVisible = true;
 
     }
@@ -500,45 +522,47 @@ public partial class ManagementPage : ContentPage
     {
 
         int pid = int.Parse(PostId);
-        bool confirm = await DisplayAlert("تأكيد الحذف", "هل أنت متأكد أنك تريد حذف هذا المنشور؟", "نعم", "لا");
+        /*bool confirm = await DisplayAlert("تأكيد الحذف", "هل أنت متأكد أنك تريد حذف هذا المنشور؟", "نعم", "لا");
         if (!confirm)
         {
 			return;
-        }
+        }*/
         // Initialize the YesNoContentView
-        //var yesNoPopup = new YesNoContentView();
+        var yesNoPopup = new YesNoContentView();
 
         // Add the popup to the current page's layout (assuming a Grid or StackLayout named 'MainLayout')
-        //MainLayout.Children.Add(yesNoPopup);
+        MainLayout.Children.Add(yesNoPopup);
 
         // Show the popup and wait for the user's response
-        //bool isConfirmed = await yesNoPopup.ShowAsync();
+        bool isConfirmed = await yesNoPopup.ShowAsync();
 
         // Remove the popup after the response
-        //MainLayout.Children.Remove(yesNoPopup);
+        MainLayout.Children.Remove(yesNoPopup);
 
         // If user clicked "No", exit the method
-        /*if (!isConfirmed)
+        if (!isConfirmed)
         {
             return;
-        }*/
+        }
         // Perform delete operation
         await _database.deleteSubjectPost(pid);
-        await DisplayAlert("تم الحذف", "تم حذف المنشور بنجاح", "حسنا");
+        //await DisplayAlert("تم الحذف", "تم حذف المنشور بنجاح", "حسنا");
         await LoadPosts();
         PostPopupWindow.IsVisible=false;
         PageShowStatus(2);
+        Snackbar.ShowSnackbar(1, "تم حذف المنشور بنجاح");
     }
-    
+
     private async void SavePostClicked(object sender, EventArgs e)
     {
-        if (string.IsNullOrEmpty(TitleEntry.Text) || string.IsNullOrEmpty(DesEditor.Text)) { 
-            await DisplayAlert("خطا", "يجب ملئ العنوان والوصف", "حسنا");
+        if (string.IsNullOrEmpty(TitleEntry.Text) || string.IsNullOrEmpty(DesEditor.Text))
+        {
+            Snackbar.ShowSnackbar(2, "يجب ملئ العنوان والوصف");
             return;
         }
         if (!string.IsNullOrEmpty(LinkEntry.Text) && !Uri.IsWellFormedUriString(LinkEntry.Text, UriKind.Absolute))
         {
-            await DisplayAlert("خطأ", "الرابط الذي أدخلته غير صحيح. يرجى إدخال رابط صالح.", "حسنا");
+            Snackbar.ShowSnackbar(2, "الرابط الذي أدخلته غير صالح.");
             return;
         }
 
@@ -553,9 +577,7 @@ public partial class ManagementPage : ContentPage
                 PostFileLink = LinkEntry.Text,
             };
             await _database.insertSubjectPost(post);
-            PageShowStatus(2);
-
-            await DisplayAlert("تمت", "تم اضافة منشور", "حسنا");
+            Snackbar.ShowSnackbar(1, "تم اضافة منشور");
         }
         else
         {
@@ -567,18 +589,17 @@ public partial class ManagementPage : ContentPage
                 existingPost.PostDes = DesEditor.Text;
                 existingPost.PostFileLink = LinkEntry.Text;
                 await _database.updateSubjectPost(existingPost);
-                await DisplayAlert("تمت", "تم تعديل المنشور", "حسنا");
+                Snackbar.ShowSnackbar(1, "تم تعديل المنشور");
             }
         }
         ClearEntrys();
         await LoadPosts();
         PostPopupWindow.IsVisible = false;
     }
+
     private void CancelPostClicked(object sender, EventArgs e)
     {
         PostPopupWindow.IsVisible = false;
     }
-
-
 }
                         
