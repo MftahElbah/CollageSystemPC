@@ -178,15 +178,15 @@ namespace CollageSystemPC.Methods.actions
         public override async Task<UserSessionTable> UserSessionChecker()
         {
             // Check if a user session exists
+            await _database.CreateTableAsync<UserSessionTable>();
+
             var IfUserExist = await _database.Table<UserSessionTable>().FirstOrDefaultAsync();
             if (IfUserExist == null)
                 return null;
 
             return IfUserExist;
-            // Find and return the matching admin user
-            /*var user = await _database.Table<AdminAccountTable>()
-                                       .FirstOrDefaultAsync(u => u.AdminId == IfUserExist.UserId && u.Password == IfUserExist.Password);
-            return user;*/
+            
+
         }
 
         public override async Task<AdminAccountTable > UserLoginChecker(string username, string password , string id)
