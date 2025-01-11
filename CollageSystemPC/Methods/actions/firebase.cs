@@ -493,7 +493,7 @@ namespace CollageSystemPC.Methods.actions
             Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
             //List<UsersAccountTable> data = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
             //List<AdminAccountTable> result = data.Where(x => x != null).ToList();
-            List<UsersAccountTable> list = data.Where(x => x.Value.UserType == type).Select(x => x.Value).ToList(); return list;
+            List<UsersAccountTable> list = data.Where(x => x.Value != null && ( x.Value.UserType == type)).Select(x => x.Value).ToList(); return list;
         }
         public override async Task<List<UsersAccountTable>> GetUserDataByName(string name, int type)
         {
