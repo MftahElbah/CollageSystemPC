@@ -23,7 +23,9 @@ public partial class Login : ContentPage
     {
         if (string.IsNullOrEmpty(UsernameEntry.Text) || string.IsNullOrEmpty(PasswordEntry.Text))
         {
-            await DisplayAlert("خطا", "يجب ملئ جميع الحقول", "حسنا");
+            //await DisplayAlert("خطا", "يجب ملئ جميع الحقول", "حسنا");
+            Snackbar.ShowSnackbar(2, "يجب ملئ جميع الحقول");
+
             return;
         }
         string username = UsernameEntry.Text.ToLower();
@@ -31,7 +33,8 @@ public partial class Login : ContentPage
         var IfUserExist = await database.UserLoginChecker(username, password,null);
         if (IfUserExist == null)
         {
-            await DisplayAlert("خطاء", "هناك خطاء في اسم المستخدم أو كلمة المرور", "حسنا");
+            //await DisplayAlert("خطاء", "هناك خطاء في اسم المستخدم أو كلمة المرور", "حسنا");
+            Snackbar.ShowSnackbar(2, "هناك خطاء في اسم المستخدم أو كلمة المرور");
             return;
         }
         UserSession.UserId = IfUserExist.AdminId;
