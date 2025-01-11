@@ -28,7 +28,6 @@
 
                 <Button CornerRadius="20" 
                 BackgroundColor="#D3B05F"
-                Padding="15"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 FontFamily="CairoB"
@@ -37,7 +36,6 @@
                 Clicked="YesClicked"/>
                 <Button CornerRadius="20" 
                 BackgroundColor="#1a1a1a"
-                Padding="15"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 FontFamily="CairoB"

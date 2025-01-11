@@ -594,6 +594,7 @@ public partial class ManagementPage : ContentPage
         }
         ClearEntrys();
         await LoadPosts();
+        PageShowStatus(2);
         PostPopupWindow.IsVisible = false;
     }
 

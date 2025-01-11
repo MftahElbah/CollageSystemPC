@@ -11,8 +11,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
 
             </Grid.RowDefinitions>
@@ -66,6 +64,8 @@
 
                     </Button>
                 </FlexLayout>
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Grid.Row="1" Margin="10">
+                
             <Border BackgroundColor="#D9D9D9" HorizontalOptions="Center" Grid.Row="1" Padding="10" Stroke="#1a1a1a" StrokeThickness="2">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="20"/>
@@ -113,6 +113,7 @@
                 </VerticalStackLayout>
             </Border>
             <Button Text="حذف جميع المواد" HorizontalOptions="Center" VerticalOptions="Center" Padding="30,20" x:Name="DeleteAllSubBtn" Clicked="DeleteAllSubBtnClicked" BackgroundColor="#F02C2C" TextColor="#efefef" CornerRadius="20" FontFamily="CairoB" Grid.Row="3"/>
+            </VerticalStackLayout>
 
             <datagrid:SfDataGrid x:Name="TeacherTableDataGrid"
                                      SelectionChanged="TeacherTableSelectionChanged"
@@ -123,7 +124,7 @@
                                      DataFetchSize="30"
                                      MaximumHeightRequest="1200"
                                      EnableDataVirtualization="True"  
-                                     Grid.Row="4" 
+                                     Grid.Row="2" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                                      >
@@ -165,7 +166,7 @@
                                      AutoGenerateColumnsMode="None"
                                      DataFetchSize="30"
                                      EnableDataVirtualization="True" 
-                                     Grid.Row="4" 
+                                     Grid.Row="2" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                >
@@ -196,7 +197,7 @@
                                      AutoGenerateColumnsMode="None"
                                      DataFetchSize="30"
                                      EnableDataVirtualization="True"
-                                     Grid.Row="4" 
+                                     Grid.Row="2" 
                                      VerticalOptions="FillAndExpand"
                                      VerticalScrollBarVisibility="Always"
                                      >
