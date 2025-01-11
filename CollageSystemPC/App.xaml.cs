@@ -68,8 +68,19 @@ namespace CollageSystemPC
             try
             {
                 var session = await _sqlite.UserSessionChecker();
+                
+                if (session == null)
+                {
+                    if (Application.Current?.Windows.Count > 0)
+                    {
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            Application.Current.Windows[0].Page = new NavigationPage(new Login());
+                        });
+                    }
+                    return;
+                }
                 var trylogin = await database.UserLoginChecker(null,session.Password,session.UserId.ToString());
-
                 if (trylogin == null)
                 {
                     if (Application.Current?.Windows.Count > 0)

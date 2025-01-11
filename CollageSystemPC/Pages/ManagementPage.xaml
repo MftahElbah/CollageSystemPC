@@ -81,19 +81,23 @@
 
                     <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
                         <Button Text="الطلبة"
-                HorizontalOptions="Center" 
-                FontFamily="CairoB"
-                FontSize="14"
-                CornerRadius="20"
-                x:Name="StudentTableShower" Clicked="StudentTableShowerClicked"
+                                HorizontalOptions="Center" 
+                                FontFamily="CairoB"
+                                FontSize="14"
+                                CornerRadius="20"
+                                TextColor="#1a1a1a"
+                                BackgroundColor="Transparent"
+                                x:Name="StudentTableShower" Clicked="StudentTableShowerClicked"
                 />
                 
                         <Button Text="المناشير"
-                HorizontalOptions="Center" 
-                FontFamily="CairoB"
-                FontSize="14"
-                CornerRadius="20"
-                x:Name="PostsShower" Clicked="PostsShowerClicked"
+                                HorizontalOptions="Center" 
+                                FontFamily="CairoB"
+                                FontSize="14"
+                                CornerRadius="20"
+                                TextColor="#1a1a1a"
+                                BackgroundColor="Transparent"
+                                x:Name="PostsShower" Clicked="PostsShowerClicked"
                 />
                     </HorizontalStackLayout>
                 </Border>
