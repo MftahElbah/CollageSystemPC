@@ -26,6 +26,7 @@ public partial class ManagementPage : ContentPage
     public string PostId;
     public bool showmessage;
     public bool[] Emptys = new bool[2];
+    private bool IsTimeChanged = false;
 
 
 
@@ -240,16 +241,9 @@ public partial class ManagementPage : ContentPage
         string enteredText = e.NewTextValue;
 
         // Check if the entered text is in English by matching it with the English characters pattern
-        if (IsTextInEnglish(enteredText))
+        if (!IsTextInEnglish(enteredText))
         {
-            // If the text is in English, do nothing or allow further processing
-            Console.WriteLine("The text is in English");
-        }
-        else
-        {
-            // If the text is not in English, clear the text
-            ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);
-            Console.WriteLine("The text was not in English, so it was cleared.");
+            ((Entry)sender).Text = enteredText.Substring(0, enteredText.Length - 1);   
         }
     }
 
@@ -258,7 +252,7 @@ public partial class ManagementPage : ContentPage
     private bool IsTextInEnglish(string text)
     {
         // Use a simple regex or check if the text contains only English letters and whitespace
-        return text.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)) && text.All(c => c <= 127); // Check if all characters are in the ASCII range
+        return text.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || c == '_' || c == '.') && text.All(c => c <= 127); // Check if all characters are in the ASCII range
     }
 
     private void IdEntryChanged(object sender, TextChangedEventArgs e)
@@ -430,6 +424,9 @@ public partial class ManagementPage : ContentPage
         DesEditor.Text = string.Empty;
         LinkEntry.Text = string.Empty;
         PostId = string.Empty;
+        PostTimeBtn.BackgroundColor = Color.FromArgb("#1A1A1A");
+        PostTimeBtn.TextColor = Color.FromArgb("#EFEFEF");
+        IsTimeChanged = false;
     }
 
     private void StudentTableShowerClicked(object sender, EventArgs e)
@@ -498,6 +495,7 @@ public partial class ManagementPage : ContentPage
         DesEditor.Text = SelectedPost.PostDes;
         LinkEntry.Text = SelectedPost.PostFileLink;
         Postslistview.SelectedItem = null;
+        PostTimePicker.SelectedDate = SelectedPost.PostDate;
         /*LinkUrl = SelectedPost.PostFileLink;
         if (!string.IsNullOrEmpty(LinkUrl))
         {
@@ -507,6 +505,25 @@ public partial class ManagementPage : ContentPage
         PostPopupWindow.IsVisible = true;
 
     }
+    private void PostTimeBtnClicked(object sender, EventArgs e)
+    {
+        if (!IsTimeChanged)
+        {
+        PostTimePicker.SelectedDate= DateTime.Now;
+
+        }
+        PostTimePicker.IsOpen = true;
+        PostTimePicker.SelectionView.Background = Color.FromRgba("#1a1a1a");
+
+    }
+    private void TimeChanged(object sender, Syncfusion.Maui.Picker.DateTimePickerSelectionChangedEventArgs e)
+    {
+        IsTimeChanged = true;
+        PostTimeBtn.BackgroundColor = Color.FromArgb("#D3B05F");
+        PostTimeBtn.TextColor = Color.FromArgb("#1A1A1A");
+    }
+    
+
     private async void OpenLinkBtnClicked(object sender, EventArgs e)
     {
         if (string.IsNullOrEmpty(LinkEntry.Text))
@@ -555,6 +572,7 @@ public partial class ManagementPage : ContentPage
 
     private async void SavePostClicked(object sender, EventArgs e)
     {
+        DateTime PostTime = DateTime.Now;
         if (string.IsNullOrEmpty(TitleEntry.Text) || string.IsNullOrEmpty(DesEditor.Text))
         {
             Snackbar.ShowSnackbar(2, "يجب ملئ العنوان والوصف");
@@ -566,6 +584,11 @@ public partial class ManagementPage : ContentPage
             return;
         }
 
+        if (IsTimeChanged)
+        {
+            PostTime = PostTimePicker.SelectedDate.Value;
+        }
+
         if (string.IsNullOrEmpty(PostId))
         {
             var post = new SubjectPosts
@@ -573,7 +596,7 @@ public partial class ManagementPage : ContentPage
                 PostTitle = TitleEntry.Text,
                 PostDes = DesEditor.Text,
                 SubId = SubId,
-                PostDate = DateTime.Now,
+                PostDate = PostTime,
                 PostFileLink = LinkEntry.Text,
             };
             await _database.insertSubjectPost(post);
@@ -588,6 +611,9 @@ public partial class ManagementPage : ContentPage
                 existingPost.PostTitle = TitleEntry.Text;
                 existingPost.PostDes = DesEditor.Text;
                 existingPost.PostFileLink = LinkEntry.Text;
+                
+                existingPost.PostDate = PostTime;
+                
                 await _database.updateSubjectPost(existingPost);
                 Snackbar.ShowSnackbar(1, "تم تعديل المنشور");
             }

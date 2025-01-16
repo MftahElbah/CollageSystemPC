@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:datagrid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:listview="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+             xmlns:picker="clr-namespace:Syncfusion.Maui.Picker;assembly=Syncfusion.Maui.Picker"
              x:Class="CollageSystemPC.Pages.ManagementPage"
              xmlns:snackbarmessage="clr-namespace:CollageSystemPC.Pages"
              BackgroundColor="#efefef"
@@ -484,8 +485,51 @@
                             </Border>
                             <Button Text="فتح الرابط" x:Name="OpenLinkBtn" Clicked="OpenLinkBtnClicked" HorizontalOptions="Center" FontSize="16" FontFamily="CairoB" CornerRadius="20" Padding="10" BackgroundColor="#1a1a1a" TextColor="#EFEFEF"/>
 
+                                
                             </HorizontalStackLayout>
+                            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                                
+                                <Button Text="موعد نشر المنشور" x:Name="PostTimeBtn" Clicked="PostTimeBtnClicked" HorizontalOptions="Center" FontSize="16" FontFamily="CairoB" TextColor="#efefef" BackgroundColor="#1a1a1a"/>
                             <Button x:Name="SavePostBtn" Clicked="SavePostClicked" Text="نشر المنشور" BackgroundColor="#D3B05F" TextColor="#1A1A1A" FontSize="16" FontFamily="CairoB" Grid.Row="2" HorizontalOptions="Center"/>
+
+
+
+                                <picker:SfDateTimePicker x:Name="PostTimePicker" SelectionChanged="TimeChanged" TimeFormat="hh_mm_tt" Mode="Dialog" FlowDirection="RightToLeft" BackgroundColor="#EFEFEF"  ColumnDividerColor="Transparent">
+
+                                    <picker:SfDateTimePicker.HeaderView>
+                                        <picker:DateTimePickerHeaderView Background="#1a1a1a">
+                                            <picker:DateTimePickerHeaderView.TextStyle>
+                                                <picker:PickerTextStyle FontSize="16" TextColor="#EFEFEF" FontFamily="Cairo"/>
+                                            </picker:DateTimePickerHeaderView.TextStyle>
+
+                                            <picker:DateTimePickerHeaderView.SelectionTextStyle>
+                                                <picker:PickerTextStyle FontSize="16" TextColor="#D3B05F" FontFamily="CairoB"/>
+
+                                            </picker:DateTimePickerHeaderView.SelectionTextStyle>
+
+                                        </picker:DateTimePickerHeaderView>
+                                    </picker:SfDateTimePicker.HeaderView>
+
+                                    <picker:SfDateTimePicker.ColumnHeaderView>
+                                        <picker:DateTimePickerColumnHeaderView Background="#EFEFEF"
+DayHeaderText="يوم" MonthHeaderText="شهر" YearHeaderText="عام"
+HourHeaderText="ساعة" MinuteHeaderText="دقيقة" SecondHeaderText="ثواني" 
+MeridiemHeaderText="توقيت">
+                                            <picker:DateTimePickerColumnHeaderView.TextStyle>
+                                                <picker:PickerTextStyle FontSize="16" TextColor="#1a1a1a" FontFamily="CairoB"/>
+                                            </picker:DateTimePickerColumnHeaderView.TextStyle>
+                                        </picker:DateTimePickerColumnHeaderView>
+                                    </picker:SfDateTimePicker.ColumnHeaderView>
+
+                                    <picker:SfDateTimePicker.SelectionView >
+                                        <picker:PickerSelectionView CornerRadius="10" Stroke="#1a1a1a" Padding="10, 5, 10, 5"  />
+                                    </picker:SfDateTimePicker.SelectionView>
+                                    <picker:SfDateTimePicker.SelectedTextStyle >
+                                        <picker:PickerTextStyle FontSize="16" TextColor="#EFEFEF" FontFamily="CairoB"/>
+                                    </picker:SfDateTimePicker.SelectedTextStyle>
+                                </picker:SfDateTimePicker>
+
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </ScrollView>
 

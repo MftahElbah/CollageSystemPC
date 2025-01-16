@@ -259,6 +259,7 @@ namespace CollageSystemPC.Methods.actions
                 deletedCount += await DeleteDegreesBySubId(subId);
                 deletedCount += await DeletePostsBySubId(subId);
                 deletedCount += await DeleteRequestsBySubId(subId);
+                deletedCount += await DeleteBookssBySubId(subId);
 
                 return deletedCount; // Return total number of deleted records
             }
@@ -296,6 +297,7 @@ namespace CollageSystemPC.Methods.actions
         private async Task<int> DeletePostsBySubId(int subId)
         {
             int deletedCount = 0;
+            int deletedpostCount = 0;
 
             var postData = await client.GetAsync("post/");
             if (postData != null && postData.Body != "null")
@@ -306,11 +308,41 @@ namespace CollageSystemPC.Methods.actions
                     if (item != null) { 
                         if (item.SubId == subId)
                         {
+                            deletedpostCount = await DeleteAssignmentByPostId(item.PostId);
+
                             var postDelete = await client.DeleteAsync($"post/{item.PostId}");
                             if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
                             {
                                 deletedCount++;
                             }
+                        }
+                    }
+                }
+            }
+
+            return deletedCount;
+        }
+
+        private async Task<int> DeleteAssignmentByPostId(int postId)
+        {
+            int deletedCount = 0;
+
+            // Fetch assignments from Firebase
+            var requestData = await client.GetAsync("assignment/");
+            if (requestData != null && requestData.Body != "null")
+            {
+                // Deserialize the data into a dictionary
+                var requests = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(requestData.Body);
+
+                foreach (var item in requests)
+                {
+                    if (item.Value != null && item.Value.PostId == postId)
+                    {
+                        // Delete using the key (Firebase ID)
+                        var requestDelete = await client.DeleteAsync($"assignment/{item.Key}");
+                        if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            deletedCount++;
                         }
                     }
                 }
@@ -345,7 +377,32 @@ namespace CollageSystemPC.Methods.actions
 
             return deletedCount;
         }
+        private async Task<int> DeleteBookssBySubId(int subId)
+        {
+            int deletedCount = 0;
 
+            var requestData = await client.GetAsync("book/");
+            if (requestData != null && requestData.Body != "null")
+            {
+                var requests = JsonConvert.DeserializeObject<List<SubjectBooks>>(requestData.Body);
+                foreach (var item in requests)
+                {
+                    if (item != null)
+                    {
+                        if (item.SubId == subId)
+                        {
+                            var requestDelete = await client.DeleteAsync($"book/{item.BookId}");
+                            if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                deletedCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return deletedCount;
+        }
         public override async Task<int> DeleteUser(int userId, int type)
         {
             try

@@ -81,6 +81,25 @@ namespace CollageSystemPC
         }
     }
 
+    public class SubjectBooks
+    {
+        [PrimaryKey, AutoIncrement]
+        public int BookId { get; set; }
+        public string BookName { get; set; }
+        public int SubId { get; set; }
+        public string BookFile { get; set; }
+        public DateTime UploadDate { get; set; }
+    }
+
+    public class SubjectAssignments
+    {
+        public int PostId { get; set; }
+        public int StdId { get; set; }
+        public string StdName { get; set; }
+        public string AssignmentFile { get; set; }
+        //public string FileType { get; set; }
+
+    }
 
     /*public string SubTeacher { get; set; }*/
 }
