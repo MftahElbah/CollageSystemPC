@@ -45,6 +45,7 @@ public partial class AdminPage : ContentPage
     public string usernamechecker;
     public int SearchTypeNum;
     public string SearchWord;
+    public string AccName;
     private DataBase _database = DataBase.selectedDatabase;
 
     public AdminPage()
@@ -238,7 +239,8 @@ public partial class AdminPage : ContentPage
             var DataRow = TeacherTableDataGrid.SelectedRow;
             IdEntry.Text = DataRow?.GetType().GetProperty("UserId")?.GetValue(DataRow)?.ToString() ?? string.Empty;
             IdEntry.IsEnabled = false;
-            NameEntry.Text = DataRow?.GetType().GetProperty("Name")?.GetValue(DataRow)?.ToString() ?? string.Empty;
+            AccName = DataRow?.GetType().GetProperty("Name")?.GetValue(DataRow)?.ToString() ?? string.Empty;
+            NameEntry.Text = AccName ?? string.Empty;
             usernamechecker = DataRow?.GetType().GetProperty("Username")?.GetValue(DataRow)?.ToString() ?? string.Empty;
             UsernameEntry.Text = usernamechecker;
             string activeSwitch = DataRow?.GetType().GetProperty("IsActive")?.GetValue(DataRow)?.ToString().ToLower() ?? "false";
@@ -282,7 +284,8 @@ public partial class AdminPage : ContentPage
             // Safely retrieve values from the data row
             AdminId = int.Parse(dataRow.GetType().GetProperty("AdminId")?.GetValue(dataRow)?.ToString() ?? string.Empty);
 
-            AdminNameEntry.Text = dataRow.GetType().GetProperty("Name")?.GetValue(dataRow)?.ToString() ?? string.Empty;
+               AccName = dataRow.GetType().GetProperty("Name")?.GetValue(dataRow)?.ToString() ?? string.Empty;
+            AdminNameEntry.Text = AccName;
             usernamechecker = dataRow.GetType().GetProperty("Username")?.GetValue(dataRow)?.ToString() ?? string.Empty;
             AdminUsernameEntry.Text = usernamechecker;
             string AdminTypeS = dataRow.GetType().GetProperty("AdminType")?.GetValue(dataRow)?.ToString()?.Trim().ToLower() ?? string.Empty;
@@ -376,6 +379,11 @@ public partial class AdminPage : ContentPage
             Snackbar.ShowSnackbar(2,"اسم المستخدم المكتوب موجود بالفعل");
             return;
         }
+        if (UsernameEntry.Text.Length < 4)
+        {
+            Snackbar.ShowSnackbar(2,"يجب ان يكون اسم المستخدم من 4 حروف او اكثر");
+            return;
+        }
 
         if (PasswordEntry.Text.Length < 8)
         {
@@ -409,6 +417,12 @@ public partial class AdminPage : ContentPage
         if (existingUsername != null)
         {
             Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
+            return;
+        }
+
+        if (AdminUsernameEntry.Text.Length < 4)
+        {
+            Snackbar.ShowSnackbar(2, "يجب ان يكون اسم المستخدم من 4 حروف او اكثر");
             return;
         }
 
@@ -536,7 +550,7 @@ public partial class AdminPage : ContentPage
             return;
         }
 
-        await _database.DeleteUser(int.Parse(IdEntry.Text) , 1);
+        await _database.DeleteUser(int.Parse(IdEntry.Text) , 1 , NameEntry.Text);
 
         //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;

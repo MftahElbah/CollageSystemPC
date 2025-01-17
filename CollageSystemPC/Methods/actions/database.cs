@@ -84,7 +84,7 @@ namespace CollageSystemPC.Methods.actions
         {
             return new int();
         }
-        public virtual async Task<int> DeleteUser(int Id , int type)
+        public virtual async Task<int> DeleteUser(int Id , int type , string name)
         {
             return new int();
         }

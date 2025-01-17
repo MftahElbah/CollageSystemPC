@@ -24,6 +24,7 @@ public partial class ManagementPage : ContentPage
     public int SubId = -1;
     public string LinkUrl;
     public string PostId;
+    public string AccName;
     public bool showmessage;
     public bool[] Emptys = new bool[2];
     private bool IsTimeChanged = false;
@@ -208,7 +209,8 @@ public partial class ManagementPage : ContentPage
             IdEntry.Text = dataRow.GetType().GetProperty("UserId")?.GetValue(dataRow)?.ToString() ?? string.Empty;
             IdEntry.IsEnabled = false;
 
-            NameEntry.Text = dataRow.GetType().GetProperty("Name")?.GetValue(dataRow)?.ToString() ?? string.Empty;
+            AccName = dataRow.GetType().GetProperty("Name")?.GetValue(dataRow)?.ToString() ?? string.Empty;
+            NameEntry.Text = AccName ?? string.Empty;
 
             UsernameEntry.Text = dataRow.GetType().GetProperty("Username")?.GetValue(dataRow)?.ToString() ?? string.Empty;
 
@@ -301,6 +303,11 @@ public partial class ManagementPage : ContentPage
         {
             Snackbar.ShowSnackbar(2, "اسم المستخدم المكتوب موجود بالفعل");
             //await DisplayAlert("خطاء", "اسم المستخدم المكتوب موجود بالفعل", "حسنا");
+            return;
+        }
+        if (UsernameEntry.Text.Length < 4)
+        {
+            Snackbar.ShowSnackbar(2, "يجب ان يكون اسم المستخدم من 4 حروف او اكثر");
             return;
         }
 
@@ -402,7 +409,7 @@ public partial class ManagementPage : ContentPage
             return;
         }
 
-        await _database.DeleteUser(int.Parse(IdEntry.Text) , 2);
+        await _database.DeleteUser(int.Parse(IdEntry.Text) , 2, AccName);
         
         //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;

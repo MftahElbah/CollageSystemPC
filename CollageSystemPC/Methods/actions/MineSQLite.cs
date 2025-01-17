@@ -317,7 +317,7 @@ namespace CollageSystemPC.Methods.actions
                 return rows;
         }
         
-        public override async Task <int> DeleteUser(int Id , int type)
+        public override async Task <int> DeleteUser(int Id , int type , string name)
         {
             var user = await _database.Table<UsersAccountTable>().FirstOrDefaultAsync(d => d.UserId == Id);
             int rows = await _database.DeleteAsync(user);

@@ -3,6 +3,7 @@ using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using Newtonsoft.Json;
+using Syncfusion.Maui.Core;
 using System.Runtime.InteropServices;
 using Windows.System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -32,22 +33,44 @@ namespace CollageSystemPC.Methods.actions
         public Firebase() {
             connection();
         }
-        public override  async Task<AdminAccountTable> CheckIfAdminUsernameExist(string username)
+        public override async Task<AdminAccountTable> CheckIfAdminUsernameExist(string username)
         {
             var SetData = await client.GetAsync("User/AccountAdmin");
             if (SetData == null || SetData.Body == "null")
             {
                 return null;
             }
-            
-            List<AdminAccountTable> data = JsonConvert.DeserializeObject<List<AdminAccountTable>>(SetData.Body);
-            AdminAccountTable adminAccount = data.FirstOrDefault(x => x != null && x.Username == username);
-            if (adminAccount == null)
+
+            // Declare the result variable
+            AdminAccountTable adminAccount = null;
+
+            // Check if the response body starts with a "{" indicating a dictionary format
+            if (SetData.Body.Trim().StartsWith("{"))
             {
-                return null;
+                // Deserialize as a Dictionary (key-value format)
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(SetData.Body);
+                if (dataDict != null)
+                {
+                    // Find the admin account by username in the dictionary
+                    adminAccount = dataDict.Values.FirstOrDefault(x => x != null && x.Username == username);
+                }
             }
+            // Check if the response body starts with a "[" indicating a list format
+            else if (SetData.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List (array format)
+                var dataList = JsonConvert.DeserializeObject<List<AdminAccountTable>>(SetData.Body);
+                if (dataList != null)
+                {
+                    // Find the admin account by username in the list
+                    adminAccount = dataList.FirstOrDefault(x => x != null && x.Username == username);
+                }
+            }
+
+            // If no admin account is found, return null
             return adminAccount;
         }
+
         public override async Task<UsersAccountTable> CheckIfIdExist(int UserId)
         {
             var SetData = await client.GetAsync("User/Account/" + UserId);
@@ -69,14 +92,28 @@ namespace CollageSystemPC.Methods.actions
             {
                 return null;
             }
-            Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(SetData.Body);
-            UsersAccountTable adminAccount = data.FirstOrDefault(x => x.Value.Username == username).Value;
-            if (adminAccount == null)
+
+            UsersAccountTable userAccount = null;
+
+            // Check if the response body starts with a "{" indicating a dictionary format
+            if (SetData.Body.Trim().StartsWith("{"))
             {
-                return null;
+                // Deserialize as Dictionary<string, UsersAccountTable>
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(SetData.Body);
+                userAccount = dataDict?.FirstOrDefault(x => x.Value != null && x.Value.Username == username).Value;
             }
-            return adminAccount;
+            // Check if the response body starts with a "[" indicating a list format
+            else if (SetData.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as List<UsersAccountTable>
+                var dataList = JsonConvert.DeserializeObject<List<UsersAccountTable>>(SetData.Body);
+                userAccount = dataList?.FirstOrDefault(x => x != null && x.Username == username);
+            }
+
+            // Return the user account if found, otherwise return null
+            return userAccount;
         }
+
         public override async Task<int> DeActiveAllSTD()
         {
             var SetData = await client.GetAsync("User/Account");
@@ -84,50 +121,49 @@ namespace CollageSystemPC.Methods.actions
             {
                 return 0;
             }
-            Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(SetData.Body);
-            data = data.Where(x => x.Value.UserType == 2).ToDictionary(x => x.Key, x => x.Value);
-            foreach (var item in data)
+
+            // Declare the data collection variable
+            Dictionary<string, UsersAccountTable> dataDict = null;
+            List<UsersAccountTable> dataList = null;
+
+            // Check if the response body starts with a "{" indicating a dictionary format
+            if (SetData.Body.Trim().StartsWith("{"))
             {
-                item.Value.IsActive = false;
-                var SetData2 = await client.SetAsync("User/Account/" + item.Value.UserId, item.Value);
+                dataDict = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(SetData.Body);
             }
+            // Check if the response body starts with a "[" indicating a list format
+            else if (SetData.Body.Trim().StartsWith("["))
+            {
+                dataList = JsonConvert.DeserializeObject<List<UsersAccountTable>>(SetData.Body);
+            }
+
+            // If data is a dictionary, filter and deactivate users
+            if (dataDict != null)
+            {
+                // Filter users with UserType 2 and deactivate them
+                var filteredData = dataDict.Where(x => x.Value != null && x.Value.UserType == 2).ToDictionary(x => x.Key, x => x.Value);
+                foreach (var item in filteredData)
+                {
+                    item.Value.IsActive = false;
+                    await client.SetAsync("User/Account/" + item.Value.UserId, item.Value);
+                }
+            }
+            // If data is a list, filter and deactivate users
+            else if (dataList != null)
+            {
+                var filteredData = dataList.Where(x => x != null && x.UserType == 2).ToList();
+                foreach (var item in filteredData)
+                {
+                    item.IsActive = false;
+                    await client.SetAsync("User/Account/" + item.UserId, item);
+                }
+            }
+
             return 1;
         }
 
-        /*public async Task<int> DeleteAllSub()
-        {
-            try
-            {
-                // Fetch all subjects from Firebase
-                FirebaseResponse getData = await client.GetAsync("sub/");
-                if (getData == null || getData.Body == "null")
-                {
-                    return 0;
-                }
 
-                // Deserialize the subjects into a dictionary
-                Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(getData.Body);
 
-                int deletedCount = 0;
-
-                // Iterate and delete each subject individually
-                foreach (var item in data)
-                {
-                    DeleteSub($"User/sub/{item.Key}");
-                    if (deleteResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        deletedCount++;
-                    }
-                }
-                return deletedCount; // Return the number of deleted records
-            }
-
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting subjects: {ex.Message}");
-                return 0;
-            }
-        }*/
         public override async Task<int> DeleteAllSub()
         {
             try
@@ -137,15 +173,46 @@ namespace CollageSystemPC.Methods.actions
                 var subData = await client.GetAsync("sub/");
                 if (subData != null && subData.Body != "null")
                 {
-                    var subjects = JsonConvert.DeserializeObject<List<SubTable>>(subData.Body);
-                    count = subjects.Count ;
+                    // Declare the variables for handling both formats
+                    List<SubTable> subjectsList = null;
+                    Dictionary<string, SubTable> subjectsDict = null;
 
-                    // 2️⃣ Find and delete each subject linked to the user
-                    foreach (var item in subjects)
+                    // Check if the response body starts with "{" (indicating dictionary format)
+                    if (subData.Body.Trim().StartsWith("{"))
                     {
-                        
-                            await DeleteSub(item.SubId); // Call existing DeleteSub method
-                            count--;
+                        subjectsDict = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(subData.Body);
+                    }
+                    // Check if the response body starts with "[" (indicating list format)
+                    else if (subData.Body.Trim().StartsWith("["))
+                    {
+                        subjectsList = JsonConvert.DeserializeObject<List<SubTable>>(subData.Body);
+                    }
+
+                    // If subjects are in Dictionary format
+                    if (subjectsDict != null)
+                    {
+                        count = subjectsDict.Count;
+                        foreach (var item in subjectsDict)
+                        {
+                            if (item.Value != null)
+                            {
+                                await DeleteSub(item.Value.SubId); // Call existing DeleteSub method
+                                count--;
+                            }
+                        }
+                    }
+                    // If subjects are in List format
+                    else if (subjectsList != null)
+                    {
+                        count = subjectsList.Count;
+                        foreach (var item in subjectsList)
+                        {
+                            if (item != null)
+                            {
+                                await DeleteSub(item.SubId); // Call existing DeleteSub method
+                                count--;
+                            }
+                        }
                     }
                 }
                 return count;
@@ -156,6 +223,7 @@ namespace CollageSystemPC.Methods.actions
                 return -1;
             }
         }
+
         public async Task<int> DeleteAllPostsWithSubIdGreaterThanMinusOne()
         {
             try
@@ -167,20 +235,52 @@ namespace CollageSystemPC.Methods.actions
                     return 0;
                 }
 
-                // Deserialize the posts into a dictionary
-                Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(getData.Body);
+                // Declare the variables for handling both formats
+                Dictionary<string, SubTable> dataDict = null;
+                List<SubTable> dataList = null;
+
+                // Check if the response body starts with "{" (indicating dictionary format)
+                if (getData.Body.Trim().StartsWith("{"))
+                {
+                    dataDict = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(getData.Body);
+                }
+                // Check if the response body starts with "[" (indicating list format)
+                else if (getData.Body.Trim().StartsWith("["))
+                {
+                    dataList = JsonConvert.DeserializeObject<List<SubTable>>(getData.Body);
+                }
 
                 int deletedCount = 0;
 
-                // Iterate and delete posts where SubId > -1
-                foreach (var item in data)
+                // If the data is in Dictionary format
+                if (dataDict != null)
                 {
-                    if (item.Value.SubId > -1)
+                    foreach (var item in dataDict)
                     {
-                        FirebaseResponse deleteResponse = await client.DeleteAsync($"post/{item.Key}");
-                        if (deleteResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                        if (item.Value != null && item.Value.SubId > -1)
                         {
-                            deletedCount++;
+                            FirebaseResponse deleteResponse = await client.DeleteAsync($"post/{item.Key}");
+                            if (deleteResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                deletedCount++;
+                            }
+                        }
+                    }
+                }
+                // If the data is in List format
+                else if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        if (item != null && item.SubId > -1)
+                        {
+                            // Delete based on the index of the item in the list (you can adapt as needed for your structure)
+                            string itemKey = dataList.IndexOf(item).ToString();
+                            FirebaseResponse deleteResponse = await client.DeleteAsync($"post/{itemKey}");
+                            if (deleteResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                            {
+                                deletedCount++;
+                            }
                         }
                     }
                 }
@@ -193,6 +293,7 @@ namespace CollageSystemPC.Methods.actions
                 return 0;
             }
         }
+
         public async Task<bool> DeleteAllRequests()
         {
             try
@@ -274,50 +375,125 @@ namespace CollageSystemPC.Methods.actions
         {
             int deletedCount = 0;
 
-            var degreeData = await client.GetAsync("degree/");
-            if (degreeData != null && degreeData.Body != "null")
+            try
             {
-                var degrees = JsonConvert.DeserializeObject<List<DegreeTable>>(degreeData.Body);
-                foreach (var item in degrees)
+                var degreeData = await client.GetAsync("degree/");
+                if (degreeData != null && degreeData.Body != "null")
                 {
-                    if (item.SubId == subId)
+                    // Declare variables to handle both formats
+                    Dictionary<string, DegreeTable> degreeDict = null;
+                    List<DegreeTable> degreeList = null;
+
+                    // Check if the response body starts with "{" (indicating dictionary format)
+                    if (degreeData.Body.Trim().StartsWith("{"))
                     {
-                        var degreeDelete = await client.DeleteAsync($"degree/{item.DegId}");
-                        if (degreeDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                        degreeDict = JsonConvert.DeserializeObject<Dictionary<string, DegreeTable>>(degreeData.Body);
+                    }
+                    // Check if the response body starts with "[" (indicating list format)
+                    else if (degreeData.Body.Trim().StartsWith("["))
+                    {
+                        degreeList = JsonConvert.DeserializeObject<List<DegreeTable>>(degreeData.Body);
+                    }
+
+                    // If data is in Dictionary format
+                    if (degreeDict != null)
+                    {
+                        foreach (var item in degreeDict)
                         {
-                            deletedCount++;
+                            if (item.Value != null && item.Value.SubId == subId)
+                            {
+                                var degreeDelete = await client.DeleteAsync($"degree/{item.Key}");
+                                if (degreeDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
                         }
                     }
-                }
-            }
-
-            return deletedCount;
-        }
-
-        private async Task<int> DeletePostsBySubId(int subId)
-        {
-            int deletedCount = 0;
-            int deletedpostCount = 0;
-
-            var postData = await client.GetAsync("post/");
-            if (postData != null && postData.Body != "null")
-            {
-                var posts = JsonConvert.DeserializeObject<List<SubjectPosts>>(postData.Body);
-                foreach (var item in posts)
-                {
-                    if (item != null) { 
-                        if (item.SubId == subId)
+                    // If data is in List format
+                    else if (degreeList != null)
+                    {
+                        foreach (var item in degreeList)
                         {
-                            deletedpostCount = await DeleteAssignmentByPostId(item.PostId);
-
-                            var postDelete = await client.DeleteAsync($"post/{item.PostId}");
-                            if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                            if (item != null && item.SubId == subId)
                             {
-                                deletedCount++;
+                                var degreeDelete = await client.DeleteAsync($"degree/{item.DegId}");
+                                if (degreeDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
                             }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting degrees: {ex.Message}");
+            }
+
+            return deletedCount;
+        }
+        private async Task<int> DeletePostsBySubId(int subId)
+        {
+            int deletedCount = 0;
+
+            try
+            {
+                var postData = await client.GetAsync("post/");
+                if (postData != null && postData.Body != "null")
+                {
+                    // Handle both List and Dictionary formats
+                    List<SubjectPosts> postsList = null;
+                    Dictionary<string, SubjectPosts> postsDict = null;
+
+                    if (postData.Body.Trim().StartsWith("{"))
+                    {
+                        postsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectPosts>>(postData.Body);
+                    }
+                    else if (postData.Body.Trim().StartsWith("["))
+                    {
+                        postsList = JsonConvert.DeserializeObject<List<SubjectPosts>>(postData.Body);
+                    }
+
+                    // Process List format
+                    if (postsList != null)
+                    {
+                        foreach (var item in postsList)
+                        {
+                            if (item != null && item.SubId == subId)
+                            {
+                                var deletedAssignmentCount = await DeleteAssignmentByPostId(item.PostId);
+                                var postDelete = await client.DeleteAsync($"post/{item.PostId}");
+                                if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (postsDict != null)
+                    {
+                        foreach (var item in postsDict)
+                        {
+                            if (item.Value != null && item.Value.SubId == subId)
+                            {
+                                var deletedAssignmentCount = await DeleteAssignmentByPostId(item.Value.PostId);
+                                var postDelete = await client.DeleteAsync($"post/{item.Key}");
+                                if (postDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting posts: {ex.Message}");
             }
 
             return deletedCount;
@@ -327,25 +503,62 @@ namespace CollageSystemPC.Methods.actions
         {
             int deletedCount = 0;
 
-            // Fetch assignments from Firebase
-            var requestData = await client.GetAsync("assignment/");
-            if (requestData != null && requestData.Body != "null")
+            try
             {
-                // Deserialize the data into a dictionary
-                var requests = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(requestData.Body);
-
-                foreach (var item in requests)
+                // Fetch assignments from Firebase
+                var assignmentData = await client.GetAsync("assignment/");
+                if (assignmentData != null && assignmentData.Body != "null")
                 {
-                    if (item.Value != null && item.Value.PostId == postId)
+                    // Handle both List and Dictionary formats
+                    Dictionary<string, SubjectAssignments> assignmentsDict = null;
+                    List<SubjectAssignments> assignmentsList = null;
+
+                    if (assignmentData.Body.Trim().StartsWith("{"))
                     {
-                        // Delete using the key (Firebase ID)
-                        var requestDelete = await client.DeleteAsync($"assignment/{item.Key}");
-                        if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                        assignmentsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(assignmentData.Body);
+                    }
+                    else if (assignmentData.Body.Trim().StartsWith("["))
+                    {
+                        assignmentsList = JsonConvert.DeserializeObject<List<SubjectAssignments>>(assignmentData.Body);
+                    }
+
+                    // Process List format
+                    if (assignmentsList != null)
+                    {
+                        foreach (var item in assignmentsList)
                         {
-                            deletedCount++;
+                            if (item != null && item.PostId == postId)
+                            {
+                                int key = int.Parse($"{item.StdId}{item.PostId}");
+                                var requestDelete = await client.DeleteAsync($"assignment/{key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (assignmentsDict != null)
+                    {
+                        foreach (var item in assignmentsDict)
+                        {
+                            if (item.Value != null && item.Value.PostId == postId)
+                            {
+                                var requestDelete = await client.DeleteAsync($"assignment/{item.Key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting assignments: {ex.Message}");
             }
 
             return deletedCount;
@@ -355,89 +568,300 @@ namespace CollageSystemPC.Methods.actions
         {
             int deletedCount = 0;
 
-            var requestData = await client.GetAsync("request/");
-            if (requestData != null && requestData.Body != "null")
+            try
             {
-                var requests = JsonConvert.DeserializeObject<List<RequestJoinSubject>>(requestData.Body);
-                foreach (var item in requests)
+                var requestData = await client.GetAsync("request/");
+                if (requestData != null && requestData.Body != "null")
                 {
-                    if(item != null)
+                    // Handle both List and Dictionary formats
+                    List<RequestJoinSubject> requestsList = null;
+                    Dictionary<string, RequestJoinSubject> requestsDict = null;
+
+                    if (requestData.Body.Trim().StartsWith("{"))
                     {
-                        if (item.SubId == subId)
+                        requestsDict = JsonConvert.DeserializeObject<Dictionary<string, RequestJoinSubject>>(requestData.Body);
+                    }
+                    else if (requestData.Body.Trim().StartsWith("["))
+                    {
+                        requestsList = JsonConvert.DeserializeObject<List<RequestJoinSubject>>(requestData.Body);
+                    }
+
+                    // Process List format
+                    if (requestsList != null)
+                    {
+                        foreach (var item in requestsList)
                         {
-                            var requestDelete = await client.DeleteAsync($"request/{item.ReqId}");
-                            if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                            if (item != null && item.SubId == subId)
                             {
-                                deletedCount++;
+                                var requestDelete = await client.DeleteAsync($"request/{item.ReqId}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (requestsDict != null)
+                    {
+                        foreach (var item in requestsDict)
+                        {
+                            if (item.Value != null && item.Value.SubId == subId)
+                            {
+                                var requestDelete = await client.DeleteAsync($"request/{item.Key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
                             }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting requests: {ex.Message}");
+            }
 
             return deletedCount;
         }
+
         private async Task<int> DeleteBookssBySubId(int subId)
         {
             int deletedCount = 0;
 
-            var requestData = await client.GetAsync("book/");
-            if (requestData != null && requestData.Body != "null")
+            try
             {
-                var requests = JsonConvert.DeserializeObject<List<SubjectBooks>>(requestData.Body);
-                foreach (var item in requests)
+                var requestData = await client.GetAsync("book/");
+                if (requestData != null && requestData.Body != "null")
                 {
-                    if (item != null)
+                    // Handle both List and Dictionary formats
+                    List<SubjectBooks> booksList = null;
+                    Dictionary<string, SubjectBooks> booksDict = null;
+
+                    if (requestData.Body.Trim().StartsWith("{"))
                     {
-                        if (item.SubId == subId)
+                        booksDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectBooks>>(requestData.Body);
+                    }
+                    else if (requestData.Body.Trim().StartsWith("["))
+                    {
+                        booksList = JsonConvert.DeserializeObject<List<SubjectBooks>>(requestData.Body);
+                    }
+
+                    // Process List format
+                    if (booksList != null)
+                    {
+                        foreach (var item in booksList)
                         {
-                            var requestDelete = await client.DeleteAsync($"book/{item.BookId}");
-                            if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                            if (item != null && item.SubId == subId)
                             {
-                                deletedCount++;
+                                var requestDelete = await client.DeleteAsync($"book/{item.BookId}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (booksDict != null)
+                    {
+                        foreach (var item in booksDict)
+                        {
+                            if (item.Value != null && item.Value.SubId == subId)
+                            {
+                                var requestDelete = await client.DeleteAsync($"book/{item.Key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
                             }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting books: {ex.Message}");
+            }
 
             return deletedCount;
         }
-        public override async Task<int> DeleteUser(int userId, int type)
+
+        public override async Task<int> DeleteUser(int userId, int type , string name)
         {
             try
             {
-                if (type == 1) // For users with subjects (e.g., teachers)
+                var userDeleteResponse = await client.DeleteAsync($"User/Account/{userId}");
+                if (userDeleteResponse == null || userDeleteResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    // 1️⃣ Delete all subjects related to the user
+                    return 0; // Failed to delete user
+                }
+                switch (type){
+                    case 1:
                     await DeleteAllUserSubs(userId);
+                    break;
 
+                    case 2:
+                    await DeleteAllStdSubs(userId , name);
+                    break;
+                }
                     // 2️⃣ Delete the user account
-                    var userDeleteResponse = await client.DeleteAsync($"User/Account/{userId}");
-                    if (userDeleteResponse == null || userDeleteResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                    {
-                        return 0; // Failed to delete user
-                    }
 
-                    return 1; // User deleted
-                }
-                else if (type == 2) // For users without subjects (e.g., admins)
-                {
-                    var userDeleteResponse = await client.DeleteAsync($"User/Account/{userId}");
-                    if (userDeleteResponse == null || userDeleteResponse.StatusCode != System.Net.HttpStatusCode.OK)
-                    {
-                        return 0;
-                    }
-
-                    return 1; // Only user deleted
-                }
-
-                return 0; // Invalid type
+                return 1; // Only user deleted
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting user and related data: {ex.Message}");
                 return 0;
+            }
+        }
+
+        private async Task DeleteAllStdSubs(int userId, string name)
+        {
+            try
+            {
+                // Fetch the request data
+                var reqdata = await client.GetAsync("request/");
+                if (reqdata != null && reqdata.Body != "null")
+                {
+                    // Handle both List and Dictionary formats for requests
+                    List<RequestJoinSubject> requestsList = null;
+                    Dictionary<string, RequestJoinSubject> requestsDict = null;
+
+                    if (reqdata.Body.Trim().StartsWith("{"))
+                    {
+                        requestsDict = JsonConvert.DeserializeObject<Dictionary<string, RequestJoinSubject>>(reqdata.Body);
+                    }
+                    else if (reqdata.Body.Trim().StartsWith("["))
+                    {
+                        requestsList = JsonConvert.DeserializeObject<List<RequestJoinSubject>>(reqdata.Body);
+                    }
+
+                    // Process List format
+                    if (requestsList != null)
+                    {
+                        foreach (var item in requestsList)
+                        {
+                            if (item != null && item.UserId == userId)
+                            {
+                                await client.DeleteAsync($"request/{item.ReqId}");
+                            }
+                        }
+                    }
+                    // Process Dictionary format
+                    else if (requestsDict != null)
+                    {
+                        foreach (var item in requestsDict)
+                        {
+                            if (item.Value != null && item.Value.UserId == userId)
+                            {
+                                await client.DeleteAsync($"request/{item.Key}");
+                            }
+                        }
+                    }
+                }
+
+                // Fetch degree data
+                var degdata = await client.GetAsync("degree/");
+                if (degdata != null && degdata.Body != "null")
+                {
+                    // Handle both List and Dictionary formats for degrees
+                    List<DegreeTable> degreesList = null;
+                    Dictionary<string, DegreeTable> degreesDict = null;
+
+                    if (degdata.Body.Trim().StartsWith("{"))
+                    {
+                        degreesDict = JsonConvert.DeserializeObject<Dictionary<string, DegreeTable>>(degdata.Body);
+                    }
+                    else if (degdata.Body.Trim().StartsWith("["))
+                    {
+                        degreesList = JsonConvert.DeserializeObject<List<DegreeTable>>(degdata.Body);
+                    }
+
+                    // Process List format
+                    if (degreesList != null)
+                    {
+                        foreach (var item in degreesList)
+                        {
+                            if (item != null && item.StdName == name)
+                            {
+                                await client.DeleteAsync($"degree/{item.DegId}");
+                            }
+                        }
+                    }
+                    // Process Dictionary format
+                    else if (degreesDict != null)
+                    {
+                        foreach (var item in degreesDict)
+                        {
+                            if (item.Value != null && item.Value.StdName == name)
+                            {
+                                await client.DeleteAsync($"degree/{item.Key}");
+                            }
+                        }
+                    }
+                }
+
+                // Fetch assignment data
+                var assigndata = await client.GetAsync("assignment/");
+                if (assigndata != null && assigndata.Body != "null")
+                {
+                    // Check if the response is in dictionary format (starts with '{')
+                    if (assigndata.Body.Trim().StartsWith("{"))
+                    {
+                        // Deserialize as a Dictionary (key-value format)
+                        var assignmentsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(assigndata.Body);
+
+                        // Ensure the dictionary is not null
+                        if (assignmentsDict != null)
+                        {
+                            // Iterate through the dictionary items
+                            foreach (var item in assignmentsDict)
+                            {
+                                // Ensure the value is not null and matches the user ID
+                                if (item.Value != null && item.Value.StdId == userId)
+                                {
+                                    // Delete the assignment using the key
+                                    var keyToDelete = item.Key;
+                                    await client.DeleteAsync($"assignment/{keyToDelete}");
+                                }
+                            }
+                        }
+                    }
+                    // Check if the response is in list format (starts with '[')
+                    else if (assigndata.Body.Trim().StartsWith("["))
+                    {
+                        // Deserialize as a List (array format)
+                        var assignmentsList = JsonConvert.DeserializeObject<List<SubjectAssignments>>(assigndata.Body);
+
+                        // Ensure the list is not null
+                        if (assignmentsList != null)
+                        {
+                            // Iterate through the list
+                            foreach (var item in assignmentsList)
+                            {
+                                // Ensure the item is not null and matches the user ID
+                                if (item != null && item.StdId == userId)
+                                {
+                                    // Create a key using StdId and PostId
+                                    int keyToDelete = int.Parse($"{item.StdId}{item.PostId}"); // or combine numerically if needed
+
+                                    // Delete the assignment using the generated key
+                                    await client.DeleteAsync($"assignment/{keyToDelete}");
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting student's subjects: {ex.Message}");
             }
         }
 
@@ -449,14 +873,42 @@ namespace CollageSystemPC.Methods.actions
                 var subData = await client.GetAsync("sub/");
                 if (subData != null && subData.Body != "null")
                 {
-                    var subjects = JsonConvert.DeserializeObject<List<SubTable>>(subData.Body);
-
-                    // 2️⃣ Find and delete each subject linked to the user
-                    foreach (var item in subjects)
+                    // Check if the response body starts with '{' (indicating a Dictionary format)
+                    if (subData.Body.Trim().StartsWith("{"))
                     {
-                        if (item.UserId == userId) // Assuming SubTeacherId links subject to user
+                        // Deserialize as a Dictionary (key-value format)
+                        var subjectsDict = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(subData.Body);
+
+                        // Ensure the dictionary is not null
+                        if (subjectsDict != null)
                         {
-                            await DeleteSub(item.SubId); // Call existing DeleteSub method
+                            // Iterate through the dictionary items
+                            foreach (var item in subjectsDict)
+                            {
+                                if (item.Value != null && item.Value.UserId == userId)
+                                {
+                                    await DeleteSub(item.Value.SubId); // Call existing DeleteSub method
+                                }
+                            }
+                        }
+                    }
+                    // Check if the response body starts with '[' (indicating a List format)
+                    else if (subData.Body.Trim().StartsWith("["))
+                    {
+                        // Deserialize as a List (array format)
+                        var subjectsList = JsonConvert.DeserializeObject<List<SubTable>>(subData.Body);
+
+                        // Ensure the list is not null
+                        if (subjectsList != null)
+                        {
+                            // Iterate through the list
+                            foreach (var item in subjectsList)
+                            {
+                                if (item != null && item.UserId == userId)
+                                {
+                                    await DeleteSub(item.SubId); // Call existing DeleteSub method
+                                }
+                            }
                         }
                     }
                 }
@@ -468,6 +920,7 @@ namespace CollageSystemPC.Methods.actions
         }
 
 
+
         public override async Task<List<AdminAccountTable>> GetAdminData()
         {
             var set = await client.GetAsync("User/AccountAdmin");
@@ -475,14 +928,31 @@ namespace CollageSystemPC.Methods.actions
             {
                 return new List<AdminAccountTable>();
             }
-            List<AdminAccountTable> data = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
-            List<AdminAccountTable> result = data.Where(x=> x != null && x.AdminId != UserSession.UserId).ToList();
-            //Dictionary<string, AdminAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
-            //List<AdminAccountTable> list = data.Select(x => x.Value).ToList();
-            //return list;
-            return result;
 
+            List<AdminAccountTable> result = new List<AdminAccountTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.AdminId != UserSession.UserId).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.AdminId != UserSession.UserId).ToList();
+                }
+            }
+
+            return result;
         }
+
         public override async Task<List<AdminAccountTable>> GetAdminDataByName(string name)
         {
             var set = await client.GetAsync("User/AccountAdmin");
@@ -491,14 +961,28 @@ namespace CollageSystemPC.Methods.actions
                 return new List<AdminAccountTable>();
             }
 
-            //Dictionary<string, AdminAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
-            List<AdminAccountTable> data = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
-            // Filter admins where Name contains the given name (case-insensitive)
-            List<AdminAccountTable> list = data
-                .Where(x => x != null &&( x.Name.Contains(name)))
-                .ToList();
+            List<AdminAccountTable> result = new List<AdminAccountTable>();
 
-            return list;
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.Name.Contains(name)).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.Name.Contains(name)).ToList();
+                }
+            }
+
+            return result;
         }
 
         public override async Task<List<SubTable>> GetSubData()
@@ -509,17 +993,29 @@ namespace CollageSystemPC.Methods.actions
                 return new List<SubTable>();
             }
 
-            // Deserialize into a Dictionary
-            //Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
-            List<SubTable> data = JsonConvert.DeserializeObject<List<SubTable>>(set.Body);
-            // Handle null values and convert to a List<SubTable>
-            List<SubTable> result = data
-                .Where(s => s != null)
-                .ToList();
+            List<SubTable> result = new List<SubTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<SubTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null).ToList();
+                }
+            }
 
             return result;
         }
-
 
         public override async Task<List<SubTable>> GetSubDataByName(string name)
         {
@@ -529,13 +1025,26 @@ namespace CollageSystemPC.Methods.actions
                 return new List<SubTable>();
             }
 
-            //Dictionary<string, SubTable> data = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
-            List<SubTable> data = JsonConvert.DeserializeObject<List<SubTable>>(set.Body);
-            //List<AdminAccountTable> result = data.Where(x => x != null).ToList();
-            // Filter subjects where SubTeacherName contains the given name (case-insensitive)
-            List<SubTable> result = data
-                    .Where(s => s != null && s.SubName.Contains(name))
-                    .ToList();
+            List<SubTable> result = new List<SubTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, SubTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.SubName.Contains(name)).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<SubTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.SubName.Contains(name)).ToList();
+                }
+            }
 
             return result;
         }
@@ -547,11 +1056,31 @@ namespace CollageSystemPC.Methods.actions
             {
                 return new List<UsersAccountTable>();
             }
-            Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
-            //List<UsersAccountTable> data = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
-            //List<AdminAccountTable> result = data.Where(x => x != null).ToList();
-            List<UsersAccountTable> list = data.Where(x => x.Value != null && ( x.Value.UserType == type)).Select(x => x.Value).ToList(); return list;
+
+            List<UsersAccountTable> result = new List<UsersAccountTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.UserType == type).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.UserType == type).ToList();
+                }
+            }
+
+            return result;
         }
+
         public override async Task<List<UsersAccountTable>> GetUserDataByName(string name, int type)
         {
             var set = await client.GetAsync("User/Account");
@@ -560,14 +1089,30 @@ namespace CollageSystemPC.Methods.actions
                 return new List<UsersAccountTable>();
             }
 
-            Dictionary<string, UsersAccountTable> data = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
-            //List<UsersAccountTable> data = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
+            List<UsersAccountTable> result = new List<UsersAccountTable>();
 
-            // Filter users by name containing the given string (case-insensitive)
-            List<UsersAccountTable> list = data.Where(x => x.Value.Name.Contains( name )&& x.Value.UserType == type).Select(x => x.Value).ToList();
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.Name.Contains(name) && x.UserType == type).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.Name.Contains(name) && x.UserType == type).ToList();
+                }
+            }
 
-            return list;
+            return result;
         }
+
 
         public override async Task<int> InsertAdmin(string Username, string name, string password, bool AdminType)
         {
@@ -577,13 +1122,26 @@ namespace CollageSystemPC.Methods.actions
 
             if (set != null && set.Body != "null")
             {
-                // Deserialize the data into a dictionary
-                List<AdminAccountTable> data = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
-                List<AdminAccountTable> result = data.Where(x => x != null).ToList();
-                // Get the highest existing ID
-                if (data.Any())
+                // Check if the response is a dictionary or a list
+                if (set.Body.Trim().StartsWith("{"))
                 {
-                    newId = result.Max(x => x.AdminId) + 1;
+                    // Deserialize as a Dictionary
+                    var dataDict = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
+                    if (dataDict != null && dataDict.Any())
+                    {
+                        // Get the highest existing ID from the dictionary and increment it
+                        newId = dataDict.Values.Max(x => x.AdminId) + 1;
+                    }
+                }
+                else if (set.Body.Trim().StartsWith("["))
+                {
+                    // Deserialize as a List
+                    List<AdminAccountTable> dataList = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
+                    if (dataList != null && dataList.Any())
+                    {
+                        // Get the highest existing ID from the list and increment it
+                        newId = dataList.Max(x => x.AdminId) + 1;
+                    }
                 }
             }
 
@@ -598,7 +1156,7 @@ namespace CollageSystemPC.Methods.actions
             };
 
             // Push the new data to Firebase
-            var SetData = client.Set($"User/AccountAdmin/{newId}", adminAccount);
+            var SetData = await client.SetAsync($"User/AccountAdmin/{newId}", adminAccount);
 
             if (SetData == null)
             {
@@ -608,17 +1166,6 @@ namespace CollageSystemPC.Methods.actions
             return newId; // Return the new ID
         }
 
-        /*public override async Task<int> insertSession(UserSessionTable session)
-        {
-            var setData = await client.SetAsync("User/AdminUserSession/" + session.UserId, session);
-            SecureStorage.SetAsync("userid/", session.UserId.ToString());
-
-            if (setData == null)
-            {
-                return 0;
-            }
-            return 1;
-        }*/
         public override async Task<int> insertSession(UserSessionTable session)
         {
             try
@@ -749,80 +1296,56 @@ namespace CollageSystemPC.Methods.actions
             }
         }
 
-        /*public override async Task<AdminAccountTable> UserSessionChecker()
-        {
-            try
-            {
-                FirebaseResponse response;
-                string userid = await SecureStorage.GetAsync("userid");
-                if (userid == null)
-                {
-                    return null;
-                }
-                
-                response = await client.GetAsync("User/AdminUserSession/" + userid);
-                
-                if (response == null || response.Body == "null")
-                {
-                    return null;
-                }
-
-                AdminAccountTable LUS = JsonConvert.DeserializeObject<AdminAccountTable>(response.Body.ToString());
-
-                AdminAccountTable result = LUS;
-                return result;
-
-            }
-            catch (Exception error)
-            {
-                Console.WriteLine(error.Message);
-                return null;
-            }
-        }*/
-        /*public override async Task<AdminAccountTable> UserSessionChecker()
-        {
-            var userid = await SecureStorage.GetAsync("userid");
-            if (userid == null)
-            {
-                return null;
-            }
-            var getData = await client.GetAsync("User/AdminUserSession/" + userid);
-
-            if (getData == null || getData.Body == "null")
-            {
-                return null;
-            }
-            AdminAccountTable adminAccount = JsonConvert.DeserializeObject<AdminAccountTable>(getData.Body);
-            if (adminAccount == null)
-            {
-                return null;
-            }
-            return adminAccount;
-        }*/
-
         public override async Task<List<SubjectPosts>> getSubjectPostsBySubId(int subId)
         {
             try
             {
+                // Fetch the data from Firebase
                 FirebaseResponse response = await client.GetAsync("post");
-                if (response == null || response.Body == "null")
+
+                // Check if the response is null or contains "null" as body
+                if (response == null || string.IsNullOrEmpty(response.Body) || response.Body == "null")
                 {
                     return new List<SubjectPosts>();
                 }
 
-                List<SubjectPosts> LUS = JsonConvert.DeserializeObject<List<SubjectPosts>>(response.Body.ToString());
-                if (LUS == null) return new List<SubjectPosts>();
+                List<SubjectPosts> result = new List<SubjectPosts>();
 
+                // Check if the response is a List or a Dictionary
+                if (response.Body.TrimStart().StartsWith("["))
+                {
+                    // Deserialize as List
+                    var postsList = JsonConvert.DeserializeObject<List<SubjectPosts>>(response.Body);
+                    if (postsList != null)
+                    {
+                        // Filter posts by SubId
+                        result = postsList.Where(e => e != null && e.SubId == subId).ToList();
+                    }
+                }
+                else if (response.Body.TrimStart().StartsWith("{"))
+                {
+                    // Deserialize as Dictionary
+                    var postsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectPosts>>(response.Body);
+                    if (postsDict != null)
+                    {
+                        // Filter dictionary values by SubId
+                        result = postsDict.Values.Where(e => e != null && e.SubId == subId).ToList();
+                    }
+                }
 
-                List<SubjectPosts> result = LUS.Where(e => e!= null && e.SubId == subId).ToList();
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                // Log the exception (optional)
+                Console.WriteLine($"Error fetching posts by SubId: {ex.Message}");
+
+                // Return an empty list in case of an error
                 return new List<SubjectPosts>();
-           
             }
         }
+
+
         public override async Task<int> insertSubjectPost(SubjectPosts subjectPosts)
         {
             try
@@ -841,24 +1364,48 @@ namespace CollageSystemPC.Methods.actions
         {
             try
             {
+                // Fetch the data from Firebase
                 FirebaseResponse response = await client.GetAsync("post");
-                if (response == null || response.Body == "null")
+
+                // Check if the response is null or contains "null" as body
+                if (response == null || string.IsNullOrEmpty(response.Body) || response.Body == "null")
                 {
                     return new List<SubjectPosts>();
                 }
 
-                List<SubjectPosts> LUS = JsonConvert.DeserializeObject<List<SubjectPosts>>(response.Body.ToString());
-                if (LUS == null) return new List<SubjectPosts>();
+                List<SubjectPosts> result = new List<SubjectPosts>();
 
+                // Check if the response is a List or a Dictionary
+                if (response.Body.TrimStart().StartsWith("["))
+                {
+                    // Deserialize as List
+                    var postsList = JsonConvert.DeserializeObject<List<SubjectPosts>>(response.Body);
+                    if (postsList != null)
+                    {
+                        result = postsList.Where(x => x != null).ToList();
+                    }
+                }
+                else if (response.Body.TrimStart().StartsWith("{"))
+                {
+                    // Deserialize as Dictionary
+                    var postsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectPosts>>(response.Body);
+                    if (postsDict != null)
+                    {
+                        result = postsDict.Values.Where(x => x != null).ToList();
+                    }
+                }
 
-                List<SubjectPosts> result = LUS.ToList();
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                // Log the exception for debugging
+                Console.WriteLine($"Error fetching posts: {ex.Message}");
                 return new List<SubjectPosts>();
             }
         }
+
+
         public override async Task<int> updateSubjectPost(SubjectPosts subjectPosts)
         {
             try
@@ -877,21 +1424,53 @@ namespace CollageSystemPC.Methods.actions
         {
             try
             {
-                FirebaseResponse response = await client.GetAsync("post/" + postId);
-                if (response == null || response.Body == "null")
+                // Fetch all posts from Firebase
+                FirebaseResponse response = await client.GetAsync("post/");
+                if (response == null || string.IsNullOrEmpty(response.Body) || response.Body == "null")
                 {
                     return null;
                 }
 
-                SubjectPosts LUS = JsonConvert.DeserializeObject<SubjectPosts>(response.Body.ToString());
-                SubjectPosts result = LUS;
-                return result;
+                // Check whether the response is a list or a dictionary
+                if (response.Body.TrimStart().StartsWith("["))
+                {
+                    // If it's a list
+                    var dataList = JsonConvert.DeserializeObject<List<SubjectPosts>>(response.Body);
+                    if (dataList == null || !dataList.Any())
+                    {
+                        return null;
+                    }
+
+                    // Find the post with the matching postId
+                    var post = dataList.FirstOrDefault(x => x != null && x.PostId == postId);
+                    return post;
+                }
+                else if (response.Body.TrimStart().StartsWith("{"))
+                {
+                    // If it's a dictionary
+                    var dataDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectPosts>>(response.Body);
+                    if (dataDict == null || !dataDict.Any())
+                    {
+                        return null;
+                    }
+
+                    // Find the post with the matching postId
+                    var post = dataDict.Values.FirstOrDefault(x => x != null && x.PostId == postId);
+                    return post;
+                }
+
+                // If neither list nor dictionary, return null
+                return null;
             }
-            catch
+            catch (Exception ex)
             {
+                // Log the error for debugging
+                Console.WriteLine($"Error fetching post with ID {postId}: {ex.Message}");
                 return null;
             }
         }
+
+
         public override async Task<int> deleteSubjectPost(int postId)
         {
             try
