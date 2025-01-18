@@ -101,5 +101,17 @@ namespace CollageSystemPC
 
     }
 
-    /*public string SubTeacher { get; set; }*/
+    public class SchedulerTask
+    {
+        [PrimaryKey, AutoIncrement]
+        public int TaskId { get; set; }
+        public string TaskTitle { get; set; }
+        public string TaskDes { get; set; }
+        public DateTime TaskStartTime { get; set; }
+        public DateTime TaskEndTime { get; set; }
+        public string TaskColor { get; set; } // Property to store the selected color
+        public int UserId { get; set; }
+
+    }
+
 }

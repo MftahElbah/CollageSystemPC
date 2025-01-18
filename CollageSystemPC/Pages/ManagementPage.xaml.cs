@@ -431,6 +431,7 @@ public partial class ManagementPage : ContentPage
         DesEditor.Text = string.Empty;
         LinkEntry.Text = string.Empty;
         PostId = string.Empty;
+        PostTimePicker.SelectedDate = DateTime.Now;
         PostTimeBtn.BackgroundColor = Color.FromArgb("#1A1A1A");
         PostTimeBtn.TextColor = Color.FromArgb("#EFEFEF");
         IsTimeChanged = false;
@@ -501,8 +502,9 @@ public partial class ManagementPage : ContentPage
         TitleEntry.Text = SelectedPost.PostTitle;
         DesEditor.Text = SelectedPost.PostDes;
         LinkEntry.Text = SelectedPost.PostFileLink;
-        Postslistview.SelectedItem = null;
         PostTimePicker.SelectedDate = SelectedPost.PostDate;
+        IsTimeChanged = true;
+        Postslistview.SelectedItem = null;
         /*LinkUrl = SelectedPost.PostFileLink;
         if (!string.IsNullOrEmpty(LinkUrl))
         {
@@ -525,7 +527,6 @@ public partial class ManagementPage : ContentPage
     }
     private void TimeChanged(object sender, Syncfusion.Maui.Picker.DateTimePickerSelectionChangedEventArgs e)
     {
-        IsTimeChanged = true;
         PostTimeBtn.BackgroundColor = Color.FromArgb("#D3B05F");
         PostTimeBtn.TextColor = Color.FromArgb("#1A1A1A");
     }
@@ -579,7 +580,7 @@ public partial class ManagementPage : ContentPage
 
     private async void SavePostClicked(object sender, EventArgs e)
     {
-        DateTime PostTime = DateTime.Now;
+        DateTime PostTime = PostTimePicker.SelectedDate.Value;
         if (string.IsNullOrEmpty(TitleEntry.Text) || string.IsNullOrEmpty(DesEditor.Text))
         {
             Snackbar.ShowSnackbar(2, "يجب ملئ العنوان والوصف");
@@ -591,10 +592,6 @@ public partial class ManagementPage : ContentPage
             return;
         }
 
-        if (IsTimeChanged)
-        {
-            PostTime = PostTimePicker.SelectedDate.Value;
-        }
 
         if (string.IsNullOrEmpty(PostId))
         {

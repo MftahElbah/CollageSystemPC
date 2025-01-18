@@ -552,7 +552,6 @@ public partial class AdminPage : ContentPage
 
         await _database.DeleteUser(int.Parse(IdEntry.Text) , 1 , NameEntry.Text);
 
-        //await DisplayAlert("حذفت", "تمت الحذف بنجاح", "حسنا");
         AcountPopupWindow.IsVisible = false;
         ClearEntrys();
         await LoadTeacher();

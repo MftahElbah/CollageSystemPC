@@ -702,6 +702,8 @@ namespace CollageSystemPC.Methods.actions
                 switch (type){
                     case 1:
                     await DeleteAllUserSubs(userId);
+                    await DeleteTasks(userId);
+
                     break;
 
                     case 2:
@@ -919,6 +921,134 @@ namespace CollageSystemPC.Methods.actions
             }
         }
 
+        public async Task<int> DeleteTasks(int id)
+        {
+            try
+            {
+                int deletedCount = 0; // Count the deleted subject
+
+                var tasksdata = await client.GetAsync($"tasks/");
+                if (tasksdata != null && tasksdata.Body != "null")
+                {
+                    // Handle both List and Dictionary formats
+                    Dictionary<string, SchedulerTask> tasksDict = null;
+                    List<SchedulerTask> tasksList = null;
+
+                    if (tasksdata.Body.Trim().StartsWith("{"))
+                    {
+                        tasksDict = JsonConvert.DeserializeObject<Dictionary<string, SchedulerTask>>(tasksdata.Body);
+                    }
+                    else if (tasksdata.Body.Trim().StartsWith("["))
+                    {
+                        tasksList = JsonConvert.DeserializeObject<List<SchedulerTask>>(tasksdata.Body);
+                    }
+
+                    // Process List format
+                    if (tasksList != null)
+                    {
+                        foreach (var item in tasksList)
+                        {
+                            if (item != null && item.UserId == id)
+                            {
+                                var requestDelete = await client.DeleteAsync($"tasks/{item.TaskId}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (tasksDict != null)
+                    {
+                        foreach (var item in tasksDict)
+                        {
+                            if (item.Value != null && item.Value.UserId == id)
+                            {
+                                var requestDelete = await client.DeleteAsync($"tasks/{item.Key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+                return deletedCount; // Return total number of deleted records
+            }
+            
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting subject and related data: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /*private async Task<int> DeleteAssignmentByPostId(int postId)
+        {
+            int deletedCount = 0;
+
+            try
+            {
+                // Fetch assignments from Firebase
+                var assignmentData = await client.GetAsync("assignment/");
+                if (assignmentData != null && assignmentData.Body != "null")
+                {
+                    // Handle both List and Dictionary formats
+                    Dictionary<string, SubjectAssignments> assignmentsDict = null;
+                    List<SubjectAssignments> assignmentsList = null;
+
+                    if (assignmentData.Body.Trim().StartsWith("{"))
+                    {
+                        assignmentsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(assignmentData.Body);
+                    }
+                    else if (assignmentData.Body.Trim().StartsWith("["))
+                    {
+                        assignmentsList = JsonConvert.DeserializeObject<List<SubjectAssignments>>(assignmentData.Body);
+                    }
+
+                    // Process List format
+                    if (assignmentsList != null)
+                    {
+                        foreach (var item in assignmentsList)
+                        {
+                            if (item != null && item.PostId == postId)
+                            {
+                                int key = int.Parse($"{item.StdId}{item.PostId}");
+                                var requestDelete = await client.DeleteAsync($"assignment/{key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process Dictionary format
+                    else if (assignmentsDict != null)
+                    {
+                        foreach (var item in assignmentsDict)
+                        {
+                            if (item.Value != null && item.Value.PostId == postId)
+                            {
+                                var requestDelete = await client.DeleteAsync($"assignment/{item.Key}");
+                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
+                                {
+                                    deletedCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting assignments: {ex.Message}");
+            }
+
+            return deletedCount;
+        }*/
 
 
         public override async Task<List<AdminAccountTable>> GetAdminData()
@@ -979,6 +1109,37 @@ namespace CollageSystemPC.Methods.actions
                 if (dataList != null)
                 {
                     result = dataList.Where(x => x != null && x.Name.Contains(name)).ToList();
+                }
+            }
+
+            return result;
+        }
+        public async Task<List<AdminAccountTable>> GetAdminDataById(int id)
+        {
+            var set = await client.GetAsync("User/AccountAdmin");
+            if (set == null || set.Body == "null")
+            {
+                return new List<AdminAccountTable>();
+            }
+
+            List<AdminAccountTable> result = new List<AdminAccountTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, AdminAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.AdminId == id).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<AdminAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.AdminId == id).ToList();
                 }
             }
 
@@ -1112,6 +1273,37 @@ namespace CollageSystemPC.Methods.actions
 
             return result;
         }
+        public async Task<List<UsersAccountTable>> GetUserDataById(int Id, int type)
+        {
+            var set = await client.GetAsync("User/Account");
+            if (set == null || set.Body == "null")
+            {
+                return new List<UsersAccountTable>();
+            }
+
+            List<UsersAccountTable> result = new List<UsersAccountTable>();
+
+            if (set.Body.Trim().StartsWith("{"))
+            {
+                // Deserialize as a Dictionary
+                var dataDict = JsonConvert.DeserializeObject<Dictionary<string, UsersAccountTable>>(set.Body);
+                if (dataDict != null)
+                {
+                    result = dataDict.Values.Where(x => x != null && x.UserId == Id && x.UserType == type).ToList();
+                }
+            }
+            else if (set.Body.Trim().StartsWith("["))
+            {
+                // Deserialize as a List
+                var dataList = JsonConvert.DeserializeObject<List<UsersAccountTable>>(set.Body);
+                if (dataList != null)
+                {
+                    result = dataList.Where(x => x != null && x.UserId == Id && x.UserType == type).ToList();
+                }
+            }
+
+            return result;
+        }
 
 
         public override async Task<int> InsertAdmin(string Username, string name, string password, bool AdminType)
@@ -1208,7 +1400,7 @@ namespace CollageSystemPC.Methods.actions
         {
             if (string.IsNullOrEmpty(password))
             {
-                List<AdminAccountTable> usercheck = await GetAdminDataByName(name);
+                List<AdminAccountTable> usercheck = await GetAdminDataById(Id);
                 password = usercheck.First().Password;
             }
             AdminAccountTable admin= new AdminAccountTable
@@ -1231,7 +1423,7 @@ namespace CollageSystemPC.Methods.actions
         {
             if (string.IsNullOrEmpty(password))
             {
-            List<UsersAccountTable> usercheck = await GetUserDataByName(name, UserType);
+            List<UsersAccountTable> usercheck = await GetUserDataById(Id, UserType);
             password = usercheck.First().Password;
             }
 
@@ -1350,8 +1542,15 @@ namespace CollageSystemPC.Methods.actions
         {
             try
             {
+                int id;
                 List<SubjectPosts> sb = await getSubjectPosts();
-                subjectPosts.PostId = sb.Count;
+                if (sb.Count == 0)
+                    id = 1;
+                else
+                {
+                    id = sb.Max(s => s?.PostId ?? 0) + 1;
+                }
+                subjectPosts.PostId = id;
                 var setData = await client.SetAsync("post/" + subjectPosts.PostId, subjectPosts);
                 return 1;
             }
