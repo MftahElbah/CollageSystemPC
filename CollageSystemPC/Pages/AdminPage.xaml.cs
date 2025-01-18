@@ -65,13 +65,7 @@ public partial class AdminPage : ContentPage
         HideContentViewMethod.HideContentView(PasswordPopup, PasswordPopupBorder);
 
     }
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await LoadTeacher();
-        await LoadAdmin();
-        await LoadSub();
-    }
+
     private async Task LoadTeacher()
     {
         var TeacherData = await _database.GetUserData(1);
@@ -152,7 +146,7 @@ public partial class AdminPage : ContentPage
     {
         PageShowStatus(3);
     }
-    public void PageShowStatus(int Status)
+    public async void PageShowStatus(int Status)
     {
 
         TeachersTableShower.TextColor = Color.FromArgb("#1A1A1A");
@@ -172,13 +166,14 @@ public partial class AdminPage : ContentPage
         SearchTypeNum = Status;
         switch (Status)
         {
-            
+
 
             case 1:
                 TeachersTableShower.TextColor = Color.FromArgb("#efefef");
                 TeachersTableShower.Background = Color.FromArgb("#1a1a1a");
                 TeacherTableDataGrid.IsVisible = true;
                 SearchBarEntry.Placeholder = "بحث بأسم المعلم";
+                await LoadTeacher();
                 break;
             case 2:
                 SubTableShower.TextColor = Color.FromArgb("#efefef");
@@ -186,12 +181,14 @@ public partial class AdminPage : ContentPage
                 SubTableDataGrid.IsVisible = true;
                 SearchBarEntry.Placeholder = "بحث بأسم المادة";
                 DeleteAllSubBtn.IsVisible = true;
+                await LoadSub();
                 break;
             case 3:
                 AdminTableShower.TextColor = Color.FromArgb("#efefef");
                 AdminTableShower.Background = Color.FromArgb("#1a1a1a");
                 AdminTableDataGrid.IsVisible = true;
                 SearchBarEntry.Placeholder = "بحث بأسم المسؤول";
+                await LoadAdmin();
                 break;
         }
 

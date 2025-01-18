@@ -985,70 +985,7 @@ namespace CollageSystemPC.Methods.actions
             }
         }
 
-        /*private async Task<int> DeleteAssignmentByPostId(int postId)
-        {
-            int deletedCount = 0;
-
-            try
-            {
-                // Fetch assignments from Firebase
-                var assignmentData = await client.GetAsync("assignment/");
-                if (assignmentData != null && assignmentData.Body != "null")
-                {
-                    // Handle both List and Dictionary formats
-                    Dictionary<string, SubjectAssignments> assignmentsDict = null;
-                    List<SubjectAssignments> assignmentsList = null;
-
-                    if (assignmentData.Body.Trim().StartsWith("{"))
-                    {
-                        assignmentsDict = JsonConvert.DeserializeObject<Dictionary<string, SubjectAssignments>>(assignmentData.Body);
-                    }
-                    else if (assignmentData.Body.Trim().StartsWith("["))
-                    {
-                        assignmentsList = JsonConvert.DeserializeObject<List<SubjectAssignments>>(assignmentData.Body);
-                    }
-
-                    // Process List format
-                    if (assignmentsList != null)
-                    {
-                        foreach (var item in assignmentsList)
-                        {
-                            if (item != null && item.PostId == postId)
-                            {
-                                int key = int.Parse($"{item.StdId}{item.PostId}");
-                                var requestDelete = await client.DeleteAsync($"assignment/{key}");
-                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
-                                {
-                                    deletedCount++;
-                                }
-                            }
-                        }
-                    }
-
-                    // Process Dictionary format
-                    else if (assignmentsDict != null)
-                    {
-                        foreach (var item in assignmentsDict)
-                        {
-                            if (item.Value != null && item.Value.PostId == postId)
-                            {
-                                var requestDelete = await client.DeleteAsync($"assignment/{item.Key}");
-                                if (requestDelete.StatusCode == System.Net.HttpStatusCode.OK)
-                                {
-                                    deletedCount++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting assignments: {ex.Message}");
-            }
-
-            return deletedCount;
-        }*/
+        
 
 
         public override async Task<List<AdminAccountTable>> GetAdminData()
@@ -1322,7 +1259,7 @@ namespace CollageSystemPC.Methods.actions
                     if (dataDict != null && dataDict.Any())
                     {
                         // Get the highest existing ID from the dictionary and increment it
-                        newId = dataDict.Values.Max(x => x.AdminId) + 1;
+                        newId = dataDict.Values.Where(x => x != null).Max(x => x.AdminId) + 1;
                     }
                 }
                 else if (set.Body.Trim().StartsWith("["))
@@ -1332,7 +1269,7 @@ namespace CollageSystemPC.Methods.actions
                     if (dataList != null && dataList.Any())
                     {
                         // Get the highest existing ID from the list and increment it
-                        newId = dataList.Max(x => x.AdminId) + 1;
+                        newId = dataList.Where(x => x != null).Max(x => x.AdminId) + 1;
                     }
                 }
             }
